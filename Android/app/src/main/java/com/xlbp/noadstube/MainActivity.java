@@ -2,11 +2,19 @@ package com.xlbp.noadstube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.webkit.WebChromeClient;
+import android.view.View;
 import android.webkit.WebView;
+
+// TODO
+// skip menu
+// rotate fullscreen and back
+// small player thingy
+// remove big ugly loading image
+// set my app as default
 
 public class MainActivity extends AppCompatActivity
 {
@@ -24,6 +32,13 @@ public class MainActivity extends AppCompatActivity
     {
         if (_webView.canGoBack())
         {
+//            if (_watchingVideo && _isFullScreen)
+//            {
+//                programmaticallyClickFullScreen();
+//
+//                _isFullScreen = false;
+//            }
+
             _webView.goBack();
         }
         else
@@ -32,161 +47,158 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        if (_watchingVideo)
+        {
+            if (!_fullScreenButtonClicked && !_phoneRotated)
+            {
+                _fullScreenButtonClicked = true;
+
+                _javaScript.clickFullScreen();
+            }
+            else if (!_phoneRotated)
+            {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+            }
+
+//            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+//            {
+//            }
+//
+//            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+//            {
+//                _javaScript.clickFullScreen();
+//            }
+        }
+    }
 
     public void doUpdateVisitedHistory(String url)
     {
-        Log.e("doUpdateVisitedHistory", url);
-
-        if (url.contains("watch"))
-        {
-            _pageFinished = false;
-
-            turnOffAds();
-        }
-
-        if (url.contains("menu"))
-        {
-            skipMenu();
-        }
-
-        removeMenuButton();
+        handleNewUrl(url);
     }
 
-    public void onPageFinished()
+    public void onFullScreenChanged(boolean fullScreen)
     {
-        _pageFinished = true;
+        handleFullScreenChanged(fullScreen);
     }
 
     private void init()
     {
         initWebView();
+
+        _javaScript = new JavaScript(this, _webView);
     }
 
     private void initWebView()
     {
         _webView = findViewById(R.id.webView);
 
-        _webView.getSettings().setJavaScriptEnabled(true);
-        _webView.setWebViewClient(new XlbpWebViewClient(this));
-        _webView.setWebChromeClient(new WebChromeClient()
+        _webView.setWebViewClient(new ViewClient(this));
+        _webView.setWebChromeClient(new ChromeClient(_webView));
+
+        _webView.loadUrl("https://m.youtube.com/");
+    }
+
+    private void handleNewUrl(String url)
+    {
+        if (!_javaScriptInitialized)
         {
-            public void onConsoleMessage(String message, int lineNumber, String sourceID)
+            _javaScriptInitialized = true;
+
+            _javaScript.init();
+
+            _javaScript.initMutationObserver();
+
+            _javaScript.initFullScreenChangedListener();
+        }
+
+//        if (url.contains("menu"))
+//        {
+//            skipMenu();
+//        }
+
+        if (url.contains("watch"))
+        {
+            _watchingVideo = true;
+
+            _javaScript.skipPreRollAd();
+        }
+        else
+        {
+            _watchingVideo = false;
+        }
+
+        _javaScript.removeMenuButton();
+    }
+
+    private void handleFullScreenChanged(boolean fullScreen)
+    {
+        _isfullScreen = fullScreen;
+
+        if (_isfullScreen)
+        {
+            hideNavigation();
+        }
+        else
+        {
+            showNavigation();
+        }
+
+        if (!_fullScreenButtonClicked)
+        {
+            _phoneRotated = true;
+
+            if (_isfullScreen)
             {
-                Log.e("MyApplication", message + " -- From line "
-                        + lineNumber + " of "
-                        + sourceID);
+                rotateToLandscape();
             }
+            else
+            {
+                rotateToPortrait();
+            }
+        }
+
+    }
+
+    private void hideNavigation()
+    {
+        runOnUiThread(() ->
+        {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         });
-
-        _webView.loadUrl("https://www.youtube.com/");
     }
 
-    private void turnOffAds()
+    private void showNavigation()
     {
-        removeHeader();
-        removeAds();
-        adjustPlayerTop();
-        adjustAppPaddingTop();
-    }
-
-    private void removeHeader()
-    {
-        String javaScript = "document.getElementById('header-bar').style.display = 'none';";
-
-        _webView.evaluateJavascript(javaScript, this::headerRemoved);
-    }
-
-    private void headerRemoved(String headerRemoved)
-    {
-        if (!headerRemoved.contains("none"))
+        runOnUiThread(() ->
         {
-            new Handler().postDelayed(() ->
-            {
-                if (!_pageFinished)
-                {
-                    removeHeader();
-                }
-            }, 5);
-        }
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        });
     }
 
-    // TODO - sometimes promoted ads arent added?
-    private void removeAds()
+    @SuppressLint("SourceLockedOrientationActivity")
+    private void rotateToLandscape()
     {
-        String javaScript = "document.getElementById('YtSparklesVisibilityIdentifier').style.display = 'none';";
-
-        _webView.evaluateJavascript(javaScript, this::adsRemoved);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     }
 
-    private void adsRemoved(String adsRemoved)
+    @SuppressLint("SourceLockedOrientationActivity")
+    private void rotateToPortrait()
     {
-        if (!adsRemoved.contains("none") && !_pageFinished)
-        {
-            new Handler().postDelayed(() ->
-            {
-                removeAds();
-            }, 5);
-        }
-    }
-
-    private void adjustPlayerTop()
-    {
-        String javaScript = "document.getElementById('player-container-id').style.top = '0px';";
-
-        _webView.evaluateJavascript(javaScript, this::playerTopAdjusted);
-    }
-
-    private void playerTopAdjusted(String playerTopAdjusted)
-    {
-        if (!playerTopAdjusted.contains("0px"))
-        {
-            new Handler().postDelayed(() ->
-            {
-                adjustPlayerTop();
-            }, 5);
-        }
-    }
-
-    private void adjustAppPaddingTop()
-    {
-        String javaScript = "document.getElementById('app').style.paddingTop = '0px';";
-
-        _webView.evaluateJavascript(javaScript, this::appPaddingTopAdjusted);
-    }
-
-    private void appPaddingTopAdjusted(String appPaddingTopAdjusted)
-    {
-        if (!appPaddingTopAdjusted.contains("0px"))
-        {
-            new Handler().postDelayed(() ->
-            {
-                adjustAppPaddingTop();
-            }, 5);
-        }
-    }
-
-    private void skipMenu()
-    {
-        _webView.setAlpha(0);
-
-        String javaScript = "javascript : (function(){ document.getElementsByClassName('active-account-name')[0].click(); })();";
-
-        _webView.loadUrl(javaScript);
-    }
-
-    private void menuSkipped(String menuSkipped)
-    {
-        _webView.setAlpha(1);
-    }
-
-    private void removeMenuButton()
-    {
-        String javaScript = "javascript : (function() { var elem = document.getElementsByTagName('ytm-menu'); elem[0].style.display = 'none'; })();";
-
-        _webView.loadUrl(javaScript);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
     }
 
 
     private WebView _webView;
-    private boolean _pageFinished;
+    private JavaScript _javaScript;
+    private boolean _javaScriptInitialized;
+    private boolean _watchingVideo;
+
+    private boolean _isfullScreen;
+    private boolean _phoneRotated;
+    private boolean _fullScreenButtonClicked;
 }
