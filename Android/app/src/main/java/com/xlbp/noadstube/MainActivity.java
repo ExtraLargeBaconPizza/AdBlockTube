@@ -62,7 +62,10 @@ public class MainActivity extends AppCompatActivity
             }
             else if (!_phoneRotated)
             {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+            }
+            else
+            {
+                _phoneRotated = false;
             }
 
 //            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
