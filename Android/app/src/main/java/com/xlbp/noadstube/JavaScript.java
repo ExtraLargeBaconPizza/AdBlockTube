@@ -1,13 +1,8 @@
 package com.xlbp.noadstube;
 
-import android.app.Activity;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class JavaScript
 {
@@ -23,6 +18,7 @@ public class JavaScript
     {
         initJavaScript();
     }
+
 
     public void initMutationObserver()
     {
@@ -44,9 +40,26 @@ public class JavaScript
         evaluate("clickFullScreen();");
     }
 
+    public void exitFullScreen()
+    {
+        evaluate("exitFullScreen();");
+    }
+
     public void initFullScreenChangedListener()
     {
         evaluate("initFullScreenChangedListener();");
+    }
+
+    public void test()
+    {
+        evaluate("test();");
+    }
+
+    private void initJavaScript()
+    {
+        String javaScript = Helpers.readTextFromResource(_mainActivity, R.raw.javascript);
+
+        evaluate(javaScript);
     }
 
     private void evaluate(String code)
@@ -71,54 +84,12 @@ public class JavaScript
         }
     }
 
-    private void initJavaScript()
-    {
-        // Parse javascript.js into a string then evaluate it
-        BufferedReader reader = null;
-
-        String javaScript = "";
-
-        try
-        {
-            reader = new BufferedReader(new InputStreamReader(_mainActivity.getResources().openRawResource(R.raw.javascript)));
-
-            String mLine;
-
-            while ((mLine = reader.readLine()) != null)
-            {
-                javaScript += mLine + '\n';
-            }
-        }
-        catch (IOException e)
-        {
-            Log.e("Javascript", "IOException 1: " + e);
-        }
-        finally
-        {
-            if (reader != null)
-            {
-                try
-                {
-                    reader.close();
-                }
-                catch (IOException e)
-                {
-                    Log.e("Javascript", "IOException 2: " + e);
-                }
-            }
-        }
-
-        evaluate(javaScript);
-    }
-
     private class JavaScriptInterface
     {
         @JavascriptInterface
         public void fullScreenChanged(String isFullScreen)
         {
-            Log.e("isFullScreen", "- " + isFullScreen);
-
-            _mainActivity.onFullScreenChanged(isFullScreen.contains("true"));
+            _mainActivity.setIsFullScreen(isFullScreen.contains("true"));
         }
     }
 

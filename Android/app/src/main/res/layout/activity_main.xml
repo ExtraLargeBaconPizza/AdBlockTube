@@ -13,9 +13,8 @@
         android:background="#000000" />
 
     <FrameLayout
-        android:id="@+id/customViewContainer"
+        android:id="@+id/fullScreenFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

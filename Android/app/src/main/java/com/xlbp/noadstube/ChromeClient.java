@@ -1,33 +1,52 @@
 package com.xlbp.noadstube;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+import android.widget.FrameLayout;
 
 public class ChromeClient extends WebChromeClient
 {
-    public ChromeClient(WebView webView)
+    public ChromeClient(MainActivity mainActivity)
     {
-        WebSettings webSettings = webView.getSettings();
+        _mainActivity = mainActivity;
 
-        webSettings.setJavaScriptEnabled(true);
+        _fullScreenFrameLayout = _mainActivity.findViewById(R.id.fullScreenFrameLayout);
+    }
 
+    // Fullscreen
+    @SuppressLint("SourceLockedOrientationActivity")
+    @Override
+    public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback)
+    {
+        // Hide Navigation and Status Bar
+        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-        webSettings.setDisplayZoomControls(false);
-        webSettings.setBuiltInZoomControls(false);
+        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 
-        // perf increases?
-        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webSettings.setDomStorageEnabled(true);
+        _fullScreenFrameLayout.addView(view, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-        {
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        }
+    @SuppressLint("SourceLockedOrientationActivity")
+    @Override
+    public void onHideCustomView()
+    {
+        super.onHideCustomView();
+
+        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        _fullScreenFrameLayout.removeAllViews();
+    }
+
+    @Override
+    public Bitmap getDefaultVideoPoster()
+    {
+        return Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
     }
 
     public void onConsoleMessage(String message, int lineNumber, String sourceID)
@@ -35,28 +54,9 @@ public class ChromeClient extends WebChromeClient
         Log.e("console.log", message);
     }
 
-    // These two functions are needed to allow video to go full screen
-    @Override
-    public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback)
-    {
-        callback.onCustomViewHidden();
-    }
 
-    @Override
-    public void onHideCustomView()
-    {
-        super.onHideCustomView();
-    }
-
-    // getVideoLoadingProgressView()
-
-//    // loading image?
-//    @Override
-//    public Bitmap getDefaultVideoPoster()
-//    {
-//        super.getDefaultVideoPoster();
-//
-//        Log.e("ChromeClient","play");
-//        return null;
-//    }
+    private MainActivity _mainActivity;
+    private FrameLayout _fullScreenFrameLayout;
+    private WebChromeClient.CustomViewCallback _customViewCallback;
+    private boolean _isFullScreen;
 }

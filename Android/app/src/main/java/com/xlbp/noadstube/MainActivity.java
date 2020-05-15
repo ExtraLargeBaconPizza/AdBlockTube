@@ -2,19 +2,26 @@ package com.xlbp.noadstube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.webkit.WebView;
 
 // TODO
 // skip menu
 // rotate fullscreen and back
-// small player thingy
-// remove big ugly loading image
 // set my app as default
+// hide blue link click
+// hide covid news. it can suck my balls
+
+// Pro
+// dark mode
+// casting
+// mini video
 
 public class MainActivity extends AppCompatActivity
 {
@@ -47,46 +54,33 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig)
-    {
-        super.onConfigurationChanged(newConfig);
-
-        if (_watchingVideo)
-        {
-            if (!_fullScreenButtonClicked && !_phoneRotated)
-            {
-                _fullScreenButtonClicked = true;
-
-                _javaScript.clickFullScreen();
-            }
-            else if (!_phoneRotated)
-            {
-            }
-            else
-            {
-                _phoneRotated = false;
-            }
-
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig)
+//    {
+//        super.onConfigurationChanged(newConfig);
+//
+//        if (_watchingVideo)
+//        {
 //            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
 //            {
+//                _javaScript.clickFullScreen();
 //            }
 //
 //            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
 //            {
-//                _javaScript.clickFullScreen();
+//                _javaScript.exitFullScreen();
 //            }
-        }
-    }
+//        }
+//    }
 
     public void doUpdateVisitedHistory(String url)
     {
         handleNewUrl(url);
     }
 
-    public void onFullScreenChanged(boolean fullScreen)
+    public void setIsFullScreen(boolean isFullScreen)
     {
-        handleFullScreenChanged(fullScreen);
+        _isfullScreen = isFullScreen;
     }
 
     private void init()
@@ -100,8 +94,18 @@ public class MainActivity extends AppCompatActivity
     {
         _webView = findViewById(R.id.webView);
 
+        _chromeClient = new ChromeClient(this);
+        _webView.setWebChromeClient(_chromeClient);
+
         _webView.setWebViewClient(new ViewClient(this));
-        _webView.setWebChromeClient(new ChromeClient(_webView));
+
+        _webView.getSettings().setJavaScriptEnabled(true);
+        _webView.getSettings().setDomStorageEnabled(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
+            _webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
 
         _webView.loadUrl("https://m.youtube.com/");
     }
@@ -115,8 +119,6 @@ public class MainActivity extends AppCompatActivity
             _javaScript.init();
 
             _javaScript.initMutationObserver();
-
-            _javaScript.initFullScreenChangedListener();
         }
 
 //        if (url.contains("menu"))
@@ -129,74 +131,46 @@ public class MainActivity extends AppCompatActivity
             _watchingVideo = true;
 
             _javaScript.skipPreRollAd();
+//            _javaScript.initFullScreenChangedListener();
+//            // TODO - move this to a separate file or function
+//            // unlocks the screen orientation after its locked into fullscreen
+//            OrientationEventListener orientationEventListener = new OrientationEventListener(this)
+//            {
+//                @Override
+//                public void onOrientationChanged(int orientation)
+//                {
+//                    int epsilon = 10;
+//                    int portrait = 0;
+//                    int leftLandscape = 90;
+//                    int rightLandscape = 270;
+//
+//                    if (epsilonCheck(orientation, portrait, epsilon) ||
+//                            epsilonCheck(orientation, leftLandscape, epsilon) ||
+//                            epsilonCheck(orientation, rightLandscape, epsilon))
+//                    {
+//                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+//                    }
+//                }
+//
+//                private boolean epsilonCheck(int a, int b, int epsilon)
+//                {
+//                    return a > b - epsilon && a < b + epsilon;
+//                }
+//            };
+//
+//            orientationEventListener.enable();
         }
         else
         {
             _watchingVideo = false;
         }
 
-        _javaScript.removeMenuButton();
-    }
-
-    private void handleFullScreenChanged(boolean fullScreen)
-    {
-        _isfullScreen = fullScreen;
-
-        if (_isfullScreen)
-        {
-            hideNavigation();
-        }
-        else
-        {
-            showNavigation();
-        }
-
-        if (!_fullScreenButtonClicked)
-        {
-            _phoneRotated = true;
-
-            if (_isfullScreen)
-            {
-                rotateToLandscape();
-            }
-            else
-            {
-                rotateToPortrait();
-            }
-        }
-
-    }
-
-    private void hideNavigation()
-    {
-        runOnUiThread(() ->
-        {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        });
-    }
-
-    private void showNavigation()
-    {
-        runOnUiThread(() ->
-        {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        });
-    }
-
-    @SuppressLint("SourceLockedOrientationActivity")
-    private void rotateToLandscape()
-    {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-    }
-
-    @SuppressLint("SourceLockedOrientationActivity")
-    private void rotateToPortrait()
-    {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+//        _javaScript.removeMenuButton();
     }
 
 
     private WebView _webView;
+    private ChromeClient _chromeClient;
     private JavaScript _javaScript;
     private boolean _javaScriptInitialized;
     private boolean _watchingVideo;
