@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 
@@ -38,6 +37,9 @@ public class ChromeClient extends WebChromeClient
     {
         super.onHideCustomView();
 
+        // Show Navigation and Status Bar
+        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
         _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         _fullScreenFrameLayout.removeAllViews();
@@ -54,9 +56,6 @@ public class ChromeClient extends WebChromeClient
         Log.e("console.log", message);
     }
 
-
     private MainActivity _mainActivity;
     private FrameLayout _fullScreenFrameLayout;
-    private WebChromeClient.CustomViewCallback _customViewCallback;
-    private boolean _isFullScreen;
 }

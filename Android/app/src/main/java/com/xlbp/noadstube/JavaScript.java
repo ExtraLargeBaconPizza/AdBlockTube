@@ -11,7 +11,7 @@ public class JavaScript
         _mainActivity = mainActivity;
         _webView = webView;
 
-        _webView.addJavascriptInterface(new JavaScriptInterface(), "androidWebViewClient");
+//        _webView.addJavascriptInterface(new JavaScriptInterface(), "androidWebViewClient");
     }
 
     public void init()
@@ -19,35 +19,24 @@ public class JavaScript
         initJavaScript();
     }
 
-
     public void initMutationObserver()
     {
         evaluate("initMutationObserver();");
     }
 
-    public void skipPreRollAd()
+    public void initTapHighlightColor()
     {
-        evaluate("skipPreRollAd();");
+        evaluate("initTapHighlightColor();");
+    }
+
+    public void skipVideoAd()
+    {
+        evaluate("skipVideoAd();");
     }
 
     public void removeMenuButton()
     {
         evaluate("removeMenuButton();");
-    }
-
-    public void clickFullScreen()
-    {
-        evaluate("clickFullScreen();");
-    }
-
-    public void exitFullScreen()
-    {
-        evaluate("exitFullScreen();");
-    }
-
-    public void initFullScreenChangedListener()
-    {
-        evaluate("initFullScreenChangedListener();");
     }
 
     public void test()
@@ -78,7 +67,7 @@ public class JavaScript
         }
         else
         {
-            Log.e("JavaScript", "evalResult Failed. Calling Again: " + code);
+            Log.e("JavaScript", "Code eval failed. Calling again: " + code);
 
             evaluate(code);
         }
@@ -86,11 +75,13 @@ public class JavaScript
 
     private class JavaScriptInterface
     {
-        @JavascriptInterface
-        public void fullScreenChanged(String isFullScreen)
-        {
-            _mainActivity.setIsFullScreen(isFullScreen.contains("true"));
-        }
+//        @JavascriptInterface
+//        public void videoAdShowing()
+//        {
+//            Log.e("JavaScriptInterface", "videoAdShowing");
+//
+//            _mainActivity.videoAdShowing();
+//        }
     }
 
 

@@ -2,26 +2,24 @@ package com.xlbp.noadstube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.webkit.WebView;
 
 // TODO
-// skip menu
-// rotate fullscreen and back
-// set my app as default
-// hide blue link click
-// hide covid news. it can suck my balls
+// skip menu for login / logout
+// set my app as default ?
+// end of video, whilst fullscreen
 
-// Pro
+// TODO Pro aka v2
 // dark mode
 // casting
 // mini video
+// rotate fullscreen and back
 
 public class MainActivity extends AppCompatActivity
 {
@@ -39,13 +37,6 @@ public class MainActivity extends AppCompatActivity
     {
         if (_webView.canGoBack())
         {
-//            if (_watchingVideo && _isFullScreen)
-//            {
-//                programmaticallyClickFullScreen();
-//
-//                _isFullScreen = false;
-//            }
-
             _webView.goBack();
         }
         else
@@ -54,40 +45,34 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig)
-//    {
-//        super.onConfigurationChanged(newConfig);
-//
-//        if (_watchingVideo)
-//        {
-//            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
-//            {
-//                _javaScript.clickFullScreen();
-//            }
-//
-//            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
-//            {
-//                _javaScript.exitFullScreen();
-//            }
-//        }
-//    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        _webView.saveState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        _webView.restoreState(savedInstanceState);
+    }
 
     public void doUpdateVisitedHistory(String url)
     {
         handleNewUrl(url);
     }
 
-    public void setIsFullScreen(boolean isFullScreen)
-    {
-        _isfullScreen = isFullScreen;
-    }
-
     private void init()
     {
         initWebView();
 
-        _javaScript = new JavaScript(this, _webView);
+        initJavascript();
+
+        setOrientationPortrait();
     }
 
     private void initWebView()
@@ -110,6 +95,17 @@ public class MainActivity extends AppCompatActivity
         _webView.loadUrl("https://m.youtube.com/");
     }
 
+    private void initJavascript()
+    {
+        _javaScript = new JavaScript(this, _webView);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    private void setOrientationPortrait()
+    {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
     private void handleNewUrl(String url)
     {
         if (!_javaScriptInitialized)
@@ -119,6 +115,8 @@ public class MainActivity extends AppCompatActivity
             _javaScript.init();
 
             _javaScript.initMutationObserver();
+
+            _javaScript.initTapHighlightColor();
         }
 
 //        if (url.contains("menu"))
@@ -128,44 +126,10 @@ public class MainActivity extends AppCompatActivity
 
         if (url.contains("watch"))
         {
-            _watchingVideo = true;
-
-            _javaScript.skipPreRollAd();
-//            _javaScript.initFullScreenChangedListener();
-//            // TODO - move this to a separate file or function
-//            // unlocks the screen orientation after its locked into fullscreen
-//            OrientationEventListener orientationEventListener = new OrientationEventListener(this)
-//            {
-//                @Override
-//                public void onOrientationChanged(int orientation)
-//                {
-//                    int epsilon = 10;
-//                    int portrait = 0;
-//                    int leftLandscape = 90;
-//                    int rightLandscape = 270;
-//
-//                    if (epsilonCheck(orientation, portrait, epsilon) ||
-//                            epsilonCheck(orientation, leftLandscape, epsilon) ||
-//                            epsilonCheck(orientation, rightLandscape, epsilon))
-//                    {
-//                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-//                    }
-//                }
-//
-//                private boolean epsilonCheck(int a, int b, int epsilon)
-//                {
-//                    return a > b - epsilon && a < b + epsilon;
-//                }
-//            };
-//
-//            orientationEventListener.enable();
-        }
-        else
-        {
-            _watchingVideo = false;
+            _javaScript.skipVideoAd();
         }
 
-//        _javaScript.removeMenuButton();
+        _javaScript.removeMenuButton();
     }
 
 
@@ -173,9 +137,4 @@ public class MainActivity extends AppCompatActivity
     private ChromeClient _chromeClient;
     private JavaScript _javaScript;
     private boolean _javaScriptInitialized;
-    private boolean _watchingVideo;
-
-    private boolean _isfullScreen;
-    private boolean _phoneRotated;
-    private boolean _fullScreenButtonClicked;
 }
