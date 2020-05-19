@@ -1,7 +1,10 @@
 package com.xlbp.noadstube;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Resources;
+import android.view.DisplayCutout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,43 +36,33 @@ public class Helpers
         return stream.toString();
     }
 
-//    private String readTextFromResource(int resourceID)
-//    {
-//        // Parse javascript.js into a string then evaluate it
-//        BufferedReader reader = null;
-//
-//        String text = "";
-//
-//        try
-//        {
-//            reader = new BufferedReader(new InputStreamReader(_mainActivity.getResources().openRawResource(R.raw.javascript)));
-//
-//            String mLine;
-//
-//            while ((mLine = reader.readLine()) != null)
-//            {
-//                text += mLine + '\n';
-//            }
-//        }
-//        catch (IOException e)
-//        {
-//            Log.e("Javascript", "IOException 1: " + e);
-//        }
-//        finally
-//        {
-//            if (reader != null)
-//            {
-//                try
-//                {
-//                    reader.close();
-//                }
-//                catch (IOException e)
-//                {
-//                    Log.e("Javascript", "IOException 2: " + e);
-//                }
-//            }
-//        }
-//
-//        return text;
-//    }
+    public static int dpToPixels(float dp)
+    {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density + 0.5f);
+    }
+
+    public static int getSafeInsetTop(Context context)
+    {
+        int safeInsetTop = 0;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
+        {
+            DisplayCutout displayCutout =
+                    ((Activity) context)
+                            .getWindow()
+                            .getDecorView()
+                            .getRootWindowInsets()
+                            .getDisplayCutout();
+
+            assert displayCutout != null;
+            safeInsetTop = displayCutout.getSafeInsetTop();
+        }
+        else
+        {
+            safeInsetTop = Helpers.dpToPixels(24);
+        }
+
+        return safeInsetTop;
+    }
+
 }

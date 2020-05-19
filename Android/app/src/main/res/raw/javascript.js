@@ -1,9 +1,9 @@
 // initMutationObserver
 function initMutationObserver()
 {
-    let observer = new MutationObserver(function(mutations)
+    var observer = new MutationObserver(function(mutations)
     {
-        for (let mutation of mutations)
+        for (var mutation of mutations)
         {
             if(mutation.attributeName == "class")
             {
@@ -14,37 +14,32 @@ function initMutationObserver()
             }
             else
             {
-                for (let node of mutation.addedNodes)
+                for (var node of mutation.addedNodes)
                 {
                     if (node.parentNode != null)
                     {
                         if (node.nodeName == 'YTM-PROMOTED-VIDEO-RENDERER')
                         {
-                            console.log('removed PROMO');
                             node.parentNode.removeChild(node);
                         }
 
                         if (node.nodeName == 'YTM-COMPANION-SLOT')
                         {
-                            console.log('removed COMPANION AD');
                             node.parentNode.removeChild(node);
                         }
 
                         if (node.nodeName == 'YTM-WATCH-METADATA-APP-PROMO-RENDERER')
                         {
-                            console.log('removed KIDS AD');
                             node.parentNode.removeChild(node);
                         }
 
                         if (node.nodeName == 'YTM-PROMOTED-SPARKLES-WEB-RENDERER' && node.parentNode.parentNode.parentNode != null)
                         {
-                            console.log('removed SPARKLES AD');
                             node.parentNode.parentNode.parentNode.removeChild(node.parentNode.parentNode);
                         }
 
                         if (node.classList != null && node.classList.contains("video-ads"))
                         {
-                            console.log('removed video-ads element initMutationObserver');
                             node.parentNode.removeChild(node);
                         }
                     }
@@ -53,8 +48,8 @@ function initMutationObserver()
         }
     });
 
-    let container = document.documentElement;
-    let config = { attributes: true, attributeFilter: ['class'], childList: true, subtree: true  };
+    var container = document.documentElement;
+    var config = { attributes: true, attributeFilter: ['class'], childList: true, subtree: true  };
 
     observer.observe(container, config);
 
@@ -82,7 +77,7 @@ function skipVideoAd()
          // We need to run a timer loop because we can't access event like video.onplaying.
          // they're blocked by the api
 
-         let timeout = setInterval(() =>
+         var timeout = setInterval(() =>
          {
             // Remove backup video ads element
             var videoAdsElement = document.querySelector('.video-ads');
@@ -95,22 +90,17 @@ function skipVideoAd()
             }
             
             // Find any video ad that is playing and skip to the end
-            let ad = document.querySelector('.ad-showing');
+            var ad = document.querySelector('.ad-showing');
 
             if (ad !== null && ad !== undefined)
             {
-                let video = document.querySelector('video');
+                var video = document.querySelector('video');
 
                 if (video !== null && video !== undefined)
                 {
-                    console.log('removed VIDEO AD SRC');
+                    console.log('removed VIDEO AD');
 
                     video.src = "";
-//                    if (isFinite(video.duration))
-//                    {
-//                        console.log('Video ad skipped');
-//                        video.currentTime = video.duration;
-//                    }
                 }
             }
 
@@ -130,10 +120,48 @@ function skipVideoAd()
     return 'successfully called skipVideoAd()';
 }
 
+function tapFullScreenButton()
+{
+    var fullScreenIcon = document.querySelector('.fullscreen-icon');
+    var fullScreenIconRect = fullScreenIcon.getBoundingClientRect();
+
+    var x = (fullScreenIconRect.left + fullScreenIconRect.right) / 2;
+    var y = (fullScreenIconRect.top + fullScreenIconRect.bottom) / 2;
+
+    // If the the control overlay is not showing, the first click will only bring it up.
+    // In that case, we need to click a second time
+    if (document.querySelector('.fadein') == null)
+    {
+        // Get the player controls first so they can be hidden ASAP
+        var playerContainer = document.querySelector('#player-control-overlay');
+        playerContainer.style.opacity = "0";
+
+        // Need to delay first click so that the container has time to set its opacity to 0
+        setTimeout(function()
+        {
+            window.androidWebViewClient.simulateClick(x, y);
+        }, 50);
+
+        // Need to delay the second click so its not a double click
+        setTimeout(function()
+        {
+            window.androidWebViewClient.simulateClick(x, y);
+
+            playerContainer.style.opacity = "1";
+        }, 650);
+    }
+    else
+    {
+        window.androidWebViewClient.simulateClick(x, y);
+    }
+
+    return 'success enterFullScreen';
+}
+
 // removeMenuButton
 function removeMenuButton()
 {
-    let elem = document.getElementsByTagName('ytm-menu');
+    var elem = document.getElementsByTagName('ytm-menu');
 
     if (elem.length > 0)
     {
@@ -151,10 +179,9 @@ function skipMenu()
     return 'successfully called skipMenu()';
 }
 
-// function just to test things
+// function just for testing things
 function test()
 {
-
     return 'successfully called test()';
 }
 

@@ -2,24 +2,27 @@ package com.xlbp.noadstube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
 // TODO
 // skip menu for login / logout
-// set my app as default ?
+// set my app as default?
 // end of video, whilst fullscreen
+// sharing button
+// icon
+// removeMenuButton might not always be needed
+// if video fails (listen for playback unplayable event from youtube?) or just search inner text
+// onPause  / onResume / re-hydration testing
 
 // TODO Pro aka v2
 // dark mode
 // casting
-// mini video
-// rotate fullscreen and back
+// mini video (swipe to lower etc)
 
 public class MainActivity extends AppCompatActivity
 {
@@ -66,13 +69,56 @@ public class MainActivity extends AppCompatActivity
         handleNewUrl(url);
     }
 
+    // TODO - move to helpers
+    public void simulateClick(float x, float y)
+    {
+        x = Helpers.dpToPixels(x);
+        y = Helpers.dpToPixels(y);
+
+        if (_orientationListener.getIsFullScreen())
+        {
+            y += _safeInset;
+        }
+
+        // TODO - refactor this?
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        MotionEvent.PointerProperties[] properties = new MotionEvent.PointerProperties[1];
+        MotionEvent.PointerProperties pp1 = new MotionEvent.PointerProperties();
+        pp1.id = 0;
+        pp1.toolType = MotionEvent.TOOL_TYPE_FINGER;
+        properties[0] = pp1;
+        MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[1];
+        MotionEvent.PointerCoords pc1 = new MotionEvent.PointerCoords();
+        pc1.x = x;
+        pc1.y = y;
+        pc1.pressure = 1;
+        pc1.size = 1;
+        pointerCoords[0] = pc1;
+
+        MotionEvent motionEvent = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_DOWN, 1, properties,
+                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
+        dispatchTouchEvent(motionEvent);
+
+        motionEvent = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_UP, 1, properties,
+                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
+        dispatchTouchEvent(motionEvent);
+    }
+
+    public void setFullScreen(boolean isFullScreen)
+    {
+        _orientationListener.setFullScreen(isFullScreen);
+    }
+
     private void init()
     {
         initWebView();
 
         initJavascript();
 
-        setOrientationPortrait();
+        initOrientationEventListener();
     }
 
     private void initWebView()
@@ -100,23 +146,27 @@ public class MainActivity extends AppCompatActivity
         _javaScript = new JavaScript(this, _webView);
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
-    private void setOrientationPortrait()
+    private void initOrientationEventListener()
     {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        _chromeClient.setOrientationToPortrait();
+
+        _orientationListener = new OrientationListener(this, _javaScript);
     }
 
     private void handleNewUrl(String url)
     {
-        if (!_javaScriptInitialized)
+        if (!_javaScriptInjected)
         {
-            _javaScriptInitialized = true;
+            _javaScriptInjected = true;
 
             _javaScript.init();
 
             _javaScript.initMutationObserver();
 
             _javaScript.initTapHighlightColor();
+
+            // TODO - lazy, this should be on resume with a init bool
+            _safeInset = Helpers.getSafeInsetTop(this);
         }
 
 //        if (url.contains("menu"))
@@ -136,5 +186,8 @@ public class MainActivity extends AppCompatActivity
     private WebView _webView;
     private ChromeClient _chromeClient;
     private JavaScript _javaScript;
-    private boolean _javaScriptInitialized;
+    private boolean _javaScriptInjected;
+    private OrientationListener _orientationListener;
+
+    private int _safeInset;
 }

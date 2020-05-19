@@ -11,7 +11,7 @@ public class JavaScript
         _mainActivity = mainActivity;
         _webView = webView;
 
-//        _webView.addJavascriptInterface(new JavaScriptInterface(), "androidWebViewClient");
+        _webView.addJavascriptInterface(new JavaScriptInterface(), "androidWebViewClient");
     }
 
     public void init()
@@ -39,9 +39,14 @@ public class JavaScript
         evaluate("removeMenuButton();");
     }
 
+    public void tapFullScreenButton()
+    {
+        evaluate("tapFullScreenButton();");
+    }
+
     public void test()
     {
-        evaluate("test();");
+//        evaluate("clickFullScreen();");
     }
 
     private void initJavaScript()
@@ -61,11 +66,7 @@ public class JavaScript
 
     private void evalResult(String code, String evalResult)
     {
-        if (evalResult.contains("success"))
-        {
-            Log.e("JavaScript", "evalResult " + evalResult);
-        }
-        else
+        if (!evalResult.contains("success"))
         {
             Log.e("JavaScript", "Code eval failed. Calling again: " + code);
 
@@ -75,13 +76,11 @@ public class JavaScript
 
     private class JavaScriptInterface
     {
-//        @JavascriptInterface
-//        public void videoAdShowing()
-//        {
-//            Log.e("JavaScriptInterface", "videoAdShowing");
-//
-//            _mainActivity.videoAdShowing();
-//        }
+        @JavascriptInterface
+        public void simulateClick(float x, float y)
+        {
+            _mainActivity.simulateClick(x, y);
+        }
     }
 
 

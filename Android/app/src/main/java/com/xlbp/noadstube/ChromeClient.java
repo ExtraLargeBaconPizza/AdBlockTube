@@ -18,31 +18,28 @@ public class ChromeClient extends WebChromeClient
         _fullScreenFrameLayout = _mainActivity.findViewById(R.id.fullScreenFrameLayout);
     }
 
-    // Fullscreen
-    @SuppressLint("SourceLockedOrientationActivity")
+    // Enter FullScreen
     @Override
-    public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback)
+    public void onShowCustomView(View view, WebChromeClient.CustomViewCallback customViewCallback)
     {
-        // Hide Navigation and Status Bar
-        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-
-        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        setOrientationToLandScape();
 
         _fullScreenFrameLayout.addView(view, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        _mainActivity.setFullScreen(true);
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
+    // Exit FullScreen
     @Override
     public void onHideCustomView()
     {
         super.onHideCustomView();
 
-        // Show Navigation and Status Bar
-        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-
-        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setOrientationToPortrait();
 
         _fullScreenFrameLayout.removeAllViews();
+
+        _mainActivity.setFullScreen(false);
     }
 
     @Override
@@ -54,6 +51,24 @@ public class ChromeClient extends WebChromeClient
     public void onConsoleMessage(String message, int lineNumber, String sourceID)
     {
         Log.e("console.log", message);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public void setOrientationToLandScape()
+    {
+        // Hide Navigation and Status Bar
+        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+
+        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public void setOrientationToPortrait()
+    {
+        // Show Navigation and Status Bar
+        _mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+        _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     private MainActivity _mainActivity;
