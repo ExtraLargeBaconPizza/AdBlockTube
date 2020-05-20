@@ -5,27 +5,35 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 // TODO
-// skip menu for login / logout
 // set my app as default?
-// end of video, whilst fullscreen
+// add loading anim to sign in delay (thanks youtube Obama)
 // sharing button
-// icon
-// removeMenuButton might not always be needed
+// design - icon,
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text
 // onPause  / onResume / re-hydration testing
+// null check on exit fullscreen?
+// full screen error? stays same size as portrait
 
 // TODO Pro aka v2
 // dark mode
 // casting
 // mini video (swipe to lower etc)
+// end of video, whilst fullscreen
+// play audio in background
 
 public class MainActivity extends AppCompatActivity
 {
+    public static final boolean IsPremium = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -75,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         x = Helpers.dpToPixels(x);
         y = Helpers.dpToPixels(y);
 
-        if (_orientationListener.getIsFullScreen())
+        if (_isFullScreen)
         {
             y += _safeInset;
         }
@@ -107,9 +115,14 @@ public class MainActivity extends AppCompatActivity
         dispatchTouchEvent(motionEvent);
     }
 
-    public void setFullScreen(boolean isFullScreen)
+    public boolean getIsFullScreen()
     {
-        _orientationListener.setFullScreen(isFullScreen);
+        return _isFullScreen;
+    }
+
+    public void setIsFullScreen(boolean isFullScreen)
+    {
+        _isFullScreen = isFullScreen;
     }
 
     private void init()
@@ -128,7 +141,8 @@ public class MainActivity extends AppCompatActivity
         _chromeClient = new ChromeClient(this);
         _webView.setWebChromeClient(_chromeClient);
 
-        _webView.setWebViewClient(new ViewClient(this));
+        ViewClient viewClient = new ViewClient(this);
+        _webView.setWebViewClient(viewClient);
 
         _webView.getSettings().setJavaScriptEnabled(true);
         _webView.getSettings().setDomStorageEnabled(true);
@@ -150,44 +164,48 @@ public class MainActivity extends AppCompatActivity
     {
         _chromeClient.setOrientationToPortrait();
 
-        _orientationListener = new OrientationListener(this, _javaScript);
+        if (IsPremium)
+        {
+            _orientationListener = new OrientationListener(this, _javaScript);
+        }
     }
 
     private void handleNewUrl(String url)
     {
-        if (!_javaScriptInjected)
+        // We need to check if we've navigated to a new domain, if so we need to re-inject javascript
+        // because it will have been erased. We only need to to check for new domains because m.youtube
+        // and accounts.google don't completely reload when navigating to new urls.
+        String urlDomain = "";
+
+        try
         {
-            _javaScriptInjected = true;
+            URI uri = new URI(url);
+            urlDomain = uri.getHost();
+        }
+        catch (URISyntaxException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (!urlDomain.equals(_currentUrlDomain))
+        {
+            _currentUrlDomain = urlDomain;
 
             _javaScript.init();
-
-            _javaScript.initMutationObserver();
-
-            _javaScript.initTapHighlightColor();
-
-            // TODO - lazy, this should be on resume with a init bool
-            _safeInset = Helpers.getSafeInsetTop(this);
         }
 
-//        if (url.contains("menu"))
-//        {
-//            skipMenu();
-//        }
-
-        if (url.contains("watch"))
-        {
-            _javaScript.skipVideoAd();
-        }
-
-        _javaScript.removeMenuButton();
+        // TODO - lazy, this should be on resume with a init bool
+        _safeInset = Helpers.getSafeInsetTop(this);
     }
 
 
     private WebView _webView;
     private ChromeClient _chromeClient;
     private JavaScript _javaScript;
-    private boolean _javaScriptInjected;
     private OrientationListener _orientationListener;
 
     private int _safeInset;
+    private boolean _isFullScreen;
+
+    private String _currentUrlDomain;
 }

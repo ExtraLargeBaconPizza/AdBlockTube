@@ -19,34 +19,9 @@ public class JavaScript
         initJavaScript();
     }
 
-    public void initMutationObserver()
-    {
-        evaluate("initMutationObserver();");
-    }
-
-    public void initTapHighlightColor()
-    {
-        evaluate("initTapHighlightColor();");
-    }
-
-    public void skipVideoAd()
-    {
-        evaluate("skipVideoAd();");
-    }
-
-    public void removeMenuButton()
-    {
-        evaluate("removeMenuButton();");
-    }
-
     public void tapFullScreenButton()
     {
         evaluate("tapFullScreenButton();");
-    }
-
-    public void test()
-    {
-//        evaluate("clickFullScreen();");
     }
 
     private void initJavaScript()
@@ -66,7 +41,11 @@ public class JavaScript
 
     private void evalResult(String code, String evalResult)
     {
-        if (!evalResult.contains("success"))
+        if (evalResult.contains("success"))
+        {
+            Log.e("JavaScript", evalResult);
+        }
+        else
         {
             Log.e("JavaScript", "Code eval failed. Calling again: " + code);
 

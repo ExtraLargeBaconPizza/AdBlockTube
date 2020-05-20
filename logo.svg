@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="4.6079998"
+   inkscape:export-xdpi="4.6079998"
+   inkscape:export-filename="/Users/Home/Desktop/Extra Large Bacon Pizza/DontReadit Ad Blocker/Chrome Extension/icon48.png"
+   width="1000"
+   height="1000"
+   viewBox="0 0 264.58333 264.58334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0beta2 (2b71d25, 2019-12-03)"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs2">
+    <rect
+       id="rect851"
+       height="109.21755"
+       width="264.58334"
+       y="77.682893"
+       x="-6.5265118e-07" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:pagecheckerboard="true"
+     inkscape:guide-bbox="true"
+     showguides="true"
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.28348549"
+     inkscape:cx="1352.7381"
+     inkscape:cy="472.50251"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1630"
+     inkscape:window-height="1005"
+     inkscape:window-x="50"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0">
+    <sodipodi:guide
+       id="guide1994"
+       orientation="1,0"
+       position="-293.92021,506.52985" />
+    <sodipodi:guide
+       inkscape:color="rgb(0,0,255)"
+       inkscape:locked="false"
+       inkscape:label=""
+       id="guide2014"
+       orientation="-1,0"
+       position="-344.10171,296.84287" />
+    <sodipodi:guide
+       id="guide2016"
+       orientation="0,-1"
+       position="359.32909,304.71619" />
+    <sodipodi:guide
+       id="guide2018"
+       orientation="0,-1"
+       position="324.79617,-86.345856" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       inkscape:transform-center-x="1.3450838e-06"
+       inkscape:export-ydpi="95.999992"
+       inkscape:export-xdpi="95.999992"
+       inkscape:export-filename="/Users/Home/Desktop/Extra Large Bacon Pizza/DontReadit Ad Blocker/Chrome Extension/icon1000.png"
+       sodipodi:type="star"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:20"
+       id="path835"
+       sodipodi:sides="8"
+       sodipodi:cx="0.64029258"
+       sodipodi:cy="263.80054"
+       sodipodi:r1="372.61786"
+       sodipodi:r2="344.25397"
+       sodipodi:arg1="-0.78661323"
+       sodipodi:arg2="-0.39391415"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 263.80057,-2.9617701e-5 373.25788,263.34778 264.44086,526.96081 1.093048,636.41812 -262.51998,527.6011 -371.97729,264.25329 -263.16027,0.64026322 0.18753718,-108.81705 Z"
+       transform="matrix(0.35485475,0.14698565,-0.14698565,0.35485475,170.83935,38.586681)" />
+    <path
+       transform="matrix(0.11826923,0.49262678,-0.49262678,0.11826923,211.47203,55.895947)"
+       inkscape:transform-center-y="-0.10942631"
+       inkscape:transform-center-x="-17.512544"
+       d="M 210.9924,282.81828 -22.963708,225.88098 143.32349,51.737693 Z"
+       inkscape:randomized="0"
+       inkscape:rounded="0"
+       inkscape:flatsided="true"
+       sodipodi:arg2="1.8095229"
+       sodipodi:arg1="0.76232534"
+       sodipodi:r2="69.508575"
+       sodipodi:r1="139.01717"
+       sodipodi:cy="186.81232"
+       sodipodi:cx="110.45073"
+       sodipodi:sides="3"
+       id="path833"
+       style="opacity:0.99;fill:#ffffff;fill-opacity:1;stroke-width:20"
+       sodipodi:type="star" />
+  </g>
+</svg>

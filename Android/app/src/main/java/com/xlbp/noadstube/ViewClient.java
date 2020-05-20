@@ -1,5 +1,6 @@
 package com.xlbp.noadstube;
 
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 

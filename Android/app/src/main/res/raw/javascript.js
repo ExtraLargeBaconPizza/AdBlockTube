@@ -1,7 +1,24 @@
-// initMutationObserver
-function initMutationObserver()
+
+// this is the sudo constructor
+(function ()
 {
-    var observer = new MutationObserver(function(mutations)
+    initAdsMutationObserver();
+
+    initMenuButtonMutationObserver();
+
+    initSignInMutationObserver();
+
+    initAccountMenuSkip();
+
+    initTapHighlightColor();
+
+    return 'successfully loaded javascript.js';
+})();
+
+// initAdsMutationObserver
+function initAdsMutationObserver()
+{
+    var adsMutationObserver = new MutationObserver(function(mutations)
     {
         for (var mutation of mutations)
         {
@@ -12,7 +29,7 @@ function initMutationObserver()
                     skipVideoAd();
                 }
             }
-            else
+            else if (mutation.type  == "childList")
             {
                 for (var node of mutation.addedNodes)
                 {
@@ -49,76 +66,116 @@ function initMutationObserver()
     });
 
     var container = document.documentElement;
-    var config = { attributes: true, attributeFilter: ['class'], childList: true, subtree: true  };
+    var config = { attributes: true, attributeFilter: ['class'], childList: true, subtree: true };
 
-    observer.observe(container, config);
+    adsMutationObserver.observe(container, config);
+}
 
-    return 'successfully called initMutationObserver()';
+function initMenuButtonMutationObserver()
+{
+    var menuButtonMutationObserver = new MutationObserver(function(mutations)
+    {
+        for (var mutation of mutations)
+        {
+            for (var node of mutation.addedNodes)
+            {
+                if (node.nodeName == 'YTM-MENU')
+                {
+                    node.style.display = "none";
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    menuButtonMutationObserver.observe(container, config);
+}
+
+// initSignInMutationObserver
+function initSignInMutationObserver()
+{
+    var signInMutationObserver = new MutationObserver(function(mutations)
+    {
+        if (window.location.href.includes("accounts"))
+        {
+            for (var mutation of mutations)
+            {
+                for (var node of mutation.addedNodes)
+                {
+                    if (node.nodeName == 'FOOTER')
+                    {
+                        node.style.display = "none";
+                    }
+
+                    if (node.textContent.includes('Forgot') || node.textContent.includes('Learn')  || node.textContent.includes('Create'))
+                    {
+                        removeUnwantedSignInElements();
+                    }
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    signInMutationObserver.observe(container, config);
+}
+
+function initAccountMenuSkip()
+{
+    window.addEventListener('popstate', function (event)
+    {
+        if (window.location.href.includes("menu"))
+        {
+            document.querySelector("#menu").style.display = "none";
+
+            var isSignedIn = false;
+
+            var checkExist = setInterval(function()
+            {
+                // already signed in
+                if (document.querySelector('.active-account-name') != null)
+                {
+                    isSignedIn = true;
+
+                    document.querySelector('.active-account-name').click();
+                }
+
+                if (document.querySelector('#simple-menu-header-title').innerText.includes("Accounts"))
+                {
+                    document.querySelector("#menu").style.display = "block";
+                    clearInterval(checkExist);
+                }
+
+                // not signed in
+                if (document.querySelector(".compact-link-metadata") != null && !isSignedIn)
+                {
+                    // Hide all the choices that can mess up the app
+                    document.querySelector(".multi-page-menu-system-link-list").style.display = "none";
+
+                    // Hide footer
+                    document.querySelector("ytm-privacy-tos-footer-renderer").style.display = "none";
+
+                    document.querySelector("#menu").style.display = "block";
+                    clearInterval(checkExist);
+                }
+            }, 10);
+        }
+    });
 }
 
 function initTapHighlightColor()
 {
     document.documentElement.style.webkitTapHighlightColor = "#00000000";
-
-    return 'successfully called initTapHighlightColor()';
 }
 
-// skipVideoAd
-var skipVideoAdRunning;
-
-function skipVideoAd()
-{
-    var timeoutCounter = 0;
-
-    if (skipVideoAdRunning != true)
-    {
-        skipVideoAdRunning = true;
-
-         // We need to run a timer loop because we can't access event like video.onplaying.
-         // they're blocked by the api
-
-         var timeout = setInterval(() =>
-         {
-            // Remove backup video ads element
-            var videoAdsElement = document.querySelector('.video-ads');
-
-            if (videoAdsElement != null && videoAdsElement.parentNode != null)
-            {
-                console.log('removed video-ads element skipVideoAd');
-
-                videoAdsElement.parentNode.removeChild(videoAdsElement);
-            }
-            
-            // Find any video ad that is playing and skip to the end
-            var ad = document.querySelector('.ad-showing');
-
-            if (ad !== null && ad !== undefined)
-            {
-                var video = document.querySelector('video');
-
-                if (video !== null && video !== undefined)
-                {
-                    console.log('removed VIDEO AD');
-
-                    video.src = "";
-                }
-            }
-
-            timeoutCounter++;
-
-            if(timeoutCounter > 100)
-            {
-                console.log('Video ad timer stopped');
-
-                skipVideoAdRunning = false;
-
-                clearTimeout(timeout);
-            }
-         }, 100);
-    }
-
-    return 'successfully called skipVideoAd()';
-}
+//////////////////////////////////////////////////////////////////////////
+// public functions
+// must return 'success';
+//////////////////////////////////////////////////////////////////////////
 
 function tapFullScreenButton()
 {
@@ -134,7 +191,7 @@ function tapFullScreenButton()
     {
         // Get the player controls first so they can be hidden ASAP
         var playerContainer = document.querySelector('#player-control-overlay');
-        playerContainer.style.opacity = "0";
+        playerContainer.style.display = "none";
 
         // Need to delay first click so that the container has time to set its opacity to 0
         setTimeout(function()
@@ -147,7 +204,7 @@ function tapFullScreenButton()
         {
             window.androidWebViewClient.simulateClick(x, y);
 
-            playerContainer.style.opacity = "1";
+            playerContainer.style.display = "block";
         }, 650);
     }
     else
@@ -155,38 +212,72 @@ function tapFullScreenButton()
         window.androidWebViewClient.simulateClick(x, y);
     }
 
-    return 'success enterFullScreen';
+    return 'successfully called tapFullScreenButton()';
 }
 
-// removeMenuButton
-function removeMenuButton()
-{
-    var elem = document.getElementsByTagName('ytm-menu');
+//////////////////////////////////////////////////////////////////////////
+// private functions
+//////////////////////////////////////////////////////////////////////////
 
-    if (elem.length > 0)
+function skipVideoAd()
+{
+    var videoAdsElement = document.querySelector('.video-ads');
+
+    if (videoAdsElement != null && videoAdsElement.parentNode != null)
     {
-        elem[0].style.display = 'none';
+        console.log('removed video-ads element skipVideoAd');
+
+        videoAdsElement.parentNode.removeChild(videoAdsElement);
     }
 
-    return 'successfully called removeMenuButton()';
+    // Find any video ad that is playing and remove its src
+    var ad = document.querySelector('.ad-showing');
+
+    if (ad !== null && ad !== undefined)
+    {
+        var video = document.querySelector('video');
+
+        if (video !== null && video !== undefined)
+        {
+            video.src = "";
+        }
+    }
 }
 
-// skipMenu
-function skipMenu()
+function removeUnwantedSignInElements()
 {
-    document.getElementsByClassName('active-account-name')[0].click();
+    var buttons = document.querySelectorAll('button');
 
-    return 'successfully called skipMenu()';
+    for (var button of buttons)
+    {
+        if (button.innerText.includes("Forgot email?"))
+        {
+            button.parentNode.style.display = "none";
+        }
+    }
+
+    var links = document.querySelectorAll('a');
+
+    for (var link of links)
+    {
+        if (link.innerText.includes("Learn more"))
+        {
+            link.parentNode.style.display = "none";
+        }
+    }
+
+    var spans = document.querySelectorAll('span');
+
+    for (var span of spans)
+    {
+        if (span.innerText.includes("Create account"))
+        {
+            span.parentNode.parentNode.style.display = "none";
+        }
+
+        if (span.innerText.includes("Forgot password?"))
+        {
+            span.style.display = "none";
+        }
+    }
 }
-
-// function just for testing things
-function test()
-{
-    return 'successfully called test()';
-}
-
-// this needs to be at the end to indicate successful initialization
-(function ()
-{
-    return 'successfully loaded javascript.js';
-})();

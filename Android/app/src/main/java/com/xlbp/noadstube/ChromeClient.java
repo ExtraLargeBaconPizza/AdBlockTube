@@ -26,7 +26,7 @@ public class ChromeClient extends WebChromeClient
 
         _fullScreenFrameLayout.addView(view, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        _mainActivity.setFullScreen(true);
+        _mainActivity.setIsFullScreen(true);
     }
 
     // Exit FullScreen
@@ -39,12 +39,13 @@ public class ChromeClient extends WebChromeClient
 
         _fullScreenFrameLayout.removeAllViews();
 
-        _mainActivity.setFullScreen(false);
+        _mainActivity.setIsFullScreen(false);
     }
 
     @Override
     public Bitmap getDefaultVideoPoster()
     {
+        // this hides an ugly loading play icon
         return Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
     }
 
@@ -70,6 +71,7 @@ public class ChromeClient extends WebChromeClient
 
         _mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
+
 
     private MainActivity _mainActivity;
     private FrameLayout _fullScreenFrameLayout;

@@ -5,10 +5,11 @@ import android.view.OrientationEventListener;
 
 public class OrientationListener extends OrientationEventListener
 {
-    public OrientationListener(Context context, JavaScript javaScript)
+    public OrientationListener(MainActivity mainActivity, JavaScript javaScript)
     {
-        super(context);
+        super(mainActivity);
 
+        _mainActivity = mainActivity;
         _javaScript = javaScript;
 
         // Need to enable the event listener
@@ -18,50 +19,43 @@ public class OrientationListener extends OrientationEventListener
     @Override
     public void onOrientationChanged(int orientation)
     {
-        int epsilon = 10;
-        int portrait = 0;
-        int leftLandscape = 90;
-        int rightLandscape = 270;
-
-        if (epsilonCheck(orientation, portrait, epsilon))
+        if (MainActivity.IsPremium)
         {
-            if (_isLandScape)
+            int epsilon = 10;
+            int portrait = 0;
+            int leftLandscape = 90;
+            int rightLandscape = 270;
+
+            if (epsilonCheck(orientation, portrait, epsilon))
             {
-                _isLandScape = false;
-
-                if (_isFullScreen)
+                if (_isLandScape)
                 {
-                    _isFullScreen = false;
+                    _isLandScape = false;
 
-                    _javaScript.tapFullScreenButton();
+                    if (_mainActivity.getIsFullScreen())
+                    {
+                        _mainActivity.setIsFullScreen(false);
+
+                        _javaScript.tapFullScreenButton();
+                    }
+                }
+            }
+
+            if (epsilonCheck(orientation, leftLandscape, epsilon) || epsilonCheck(orientation, rightLandscape, epsilon))
+            {
+                if (!_isLandScape)
+                {
+                    _isLandScape = true;
+
+                    if (!_mainActivity.getIsFullScreen())
+                    {
+                        _mainActivity.setIsFullScreen(true);
+
+                        _javaScript.tapFullScreenButton();
+                    }
                 }
             }
         }
-
-        if (epsilonCheck(orientation, leftLandscape, epsilon) || epsilonCheck(orientation, rightLandscape, epsilon))
-        {
-            if (!_isLandScape)
-            {
-                _isLandScape = true;
-
-                if (!_isFullScreen)
-                {
-                    _isFullScreen = true;
-
-                    _javaScript.tapFullScreenButton();
-                }
-            }
-        }
-    }
-
-    public boolean getIsFullScreen()
-    {
-        return _isFullScreen;
-    }
-
-    public void setFullScreen(boolean isFullScreen)
-    {
-        _isFullScreen = isFullScreen;
     }
 
     private boolean epsilonCheck(int a, int b, int epsilon)
@@ -69,8 +63,9 @@ public class OrientationListener extends OrientationEventListener
         return a > b - epsilon && a < b + epsilon;
     }
 
+
+    private MainActivity _mainActivity;
     private JavaScript _javaScript;
 
-    private boolean _isFullScreen;
     private boolean _isLandScape;
 }
