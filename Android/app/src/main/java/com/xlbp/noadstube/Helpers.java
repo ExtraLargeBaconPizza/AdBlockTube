@@ -1,12 +1,15 @@
 package com.xlbp.noadstube;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.SystemClock;
 import android.view.DisplayCutout;
 import android.view.MotionEvent;
+import android.view.View;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,30 +48,6 @@ public class Helpers
 
     public static int SafeInsetTop;
 
-    public static void initSafeInsetTop(Context context)
-    {
-        int safeInsetTop = 0;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
-        {
-            DisplayCutout displayCutout =
-                    ((Activity) context)
-                            .getWindow()
-                            .getDecorView()
-                            .getRootWindowInsets()
-                            .getDisplayCutout();
-
-            assert displayCutout != null;
-            safeInsetTop = displayCutout.getSafeInsetTop();
-        }
-        else
-        {
-            safeInsetTop = Helpers.dpToPixels(24);
-        }
-
-        SafeInsetTop = safeInsetTop;
-    }
-
     public static void simulateTap(MainActivity mainActivity, float x, float y)
     {
         x = Helpers.dpToPixels(x);
@@ -104,5 +83,29 @@ public class Helpers
                 MotionEvent.ACTION_UP, 1, properties,
                 pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
         mainActivity.dispatchTouchEvent(motionEvent);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public static void setOrientationToLandScape(MainActivity mainActivity)
+    {
+        mainActivity.runOnUiThread(() ->
+        {
+            // Hide Navigation and Status Bar
+            mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+
+            mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        });
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public static void setOrientationToPortrait(MainActivity mainActivity)
+    {
+        mainActivity.runOnUiThread(() ->
+        {
+            // Show Navigation and Status Bar
+            mainActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+            mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        });
     }
 }

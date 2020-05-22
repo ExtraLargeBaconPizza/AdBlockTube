@@ -20,6 +20,16 @@ public class JavaScript
         initJavaScript();
     }
 
+    public void enterFullScreen()
+    {
+        evaluate("enterFullScreen();");
+    }
+
+    public void exitFullScreen()
+    {
+        evaluate("exitFullScreen();");
+    }
+
     public void tapFullScreenButton()
     {
         evaluate("tapFullScreenButton();");
@@ -65,6 +75,22 @@ public class JavaScript
         public void simulateTap(float x, float y)
         {
             Helpers.simulateTap(_mainActivity, x, y);
+        }
+
+        @JavascriptInterface
+        public void enterFullScreen()
+        {
+            _mainActivity.setIsFullScreen(true);
+
+            Helpers.setOrientationToLandScape(_mainActivity);
+        }
+
+        @JavascriptInterface
+        public void exitFullScreen()
+        {
+            _mainActivity.setIsFullScreen(false);
+
+            Helpers.setOrientationToPortrait(_mainActivity);
         }
 
         @JavascriptInterface

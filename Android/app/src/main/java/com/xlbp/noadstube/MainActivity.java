@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 // TODO
-// go back before addShareButtonEventListener is successful, so it keeps looping
+// logo and design bullshit
 // set my app as default? deep linking
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text
 // onPause  / onResume / re-hydration testing
@@ -26,11 +26,12 @@ import java.net.URISyntaxException;
 // mini video (swipe to lower etc)
 // end of video, whilst fullscreen
 // play audio in background / meh
-// fullscreen double tap. look in the website script, change player_doubletap_to_seek=true to false;
+// fullscreen remove double tap. look in the website script, change player_doubletap_to_seek=true to false;
+// test out calling youtube's function directly through getEventListeners approach
 
 public class MainActivity extends AppCompatActivity
 {
-    public static final boolean IsPremium = false;
+    public static final boolean IsPremium = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -75,44 +76,6 @@ public class MainActivity extends AppCompatActivity
     {
         handleNewUrl(url);
     }
-
-    // TODO - move to helpers
-//    public void simulateClick(float x, float y)
-//    {
-//        x = Helpers.dpToPixels(x);
-//        y = Helpers.dpToPixels(y);
-//
-//        if (_isFullScreen)
-//        {
-//            y += _safeInset;
-//        }
-//
-//        // TODO - refactor this?
-//        long downTime = SystemClock.uptimeMillis();
-//        long eventTime = SystemClock.uptimeMillis();
-//        MotionEvent.PointerProperties[] properties = new MotionEvent.PointerProperties[1];
-//        MotionEvent.PointerProperties pp1 = new MotionEvent.PointerProperties();
-//        pp1.id = 0;
-//        pp1.toolType = MotionEvent.TOOL_TYPE_FINGER;
-//        properties[0] = pp1;
-//        MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[1];
-//        MotionEvent.PointerCoords pc1 = new MotionEvent.PointerCoords();
-//        pc1.x = x;
-//        pc1.y = y;
-//        pc1.pressure = 1;
-//        pc1.size = 1;
-//        pointerCoords[0] = pc1;
-//
-//        MotionEvent motionEvent = MotionEvent.obtain(downTime, eventTime,
-//                MotionEvent.ACTION_DOWN, 1, properties,
-//                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
-//        dispatchTouchEvent(motionEvent);
-//
-//        motionEvent = MotionEvent.obtain(downTime, eventTime,
-//                MotionEvent.ACTION_UP, 1, properties,
-//                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
-//        dispatchTouchEvent(motionEvent);
-//    }
 
     public boolean getIsFullScreen()
     {
@@ -170,11 +133,6 @@ public class MainActivity extends AppCompatActivity
 
     private void handleNewUrl(String url)
     {
-        if (Helpers.SafeInsetTop == 0)
-        {
-            Helpers.initSafeInsetTop(this);
-        }
-
         // We need to check if we've navigated to a new domain, if so we need to re-inject javascript
         // because it will have been erased. We only need to to check for new domains because m.youtube
         // and accounts.google don't completely reload when navigating to new urls.
@@ -196,6 +154,8 @@ public class MainActivity extends AppCompatActivity
 
             _javaScript.init();
         }
+
+        _orientationListener.setIsWatchUrl(url.contains("watch"));
     }
 
 

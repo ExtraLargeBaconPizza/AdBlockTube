@@ -1,8 +1,3 @@
-
-// probably useful for finding the double click event
-// getEventListeners(document); replace document with video player
-
-
 // this is the sudo constructor
 (function ()
 {
@@ -17,6 +12,8 @@
     initSignInMutationObserver();
 
     initShareButtonMutationObserver();
+
+    initFullScreenMutationObserver();
 
     initTapHighlightColor();
 
@@ -185,6 +182,49 @@ function initSignInMutationObserver()
     signInMutationObserver.observe(container, config);
 }
 
+// initFullScreenMutationObserver
+// I need to have all this nonsense so that entering/exiting fullscreen is consistent.
+// This is done by removing all of youtube fullscreen click event listeners and manually doing everything
+function initFullScreenMutationObserver()
+{
+    var fullScreenMutationObserver = new MutationObserver(function(mutations)
+    {
+        for (var mutation of mutations)
+        {
+            for (var node of mutation.addedNodes)
+            {
+                if(node.nodeName == "BUTTON" && node.classList.contains("fullscreen-icon"))
+                {
+                    // need to null out youtubes onclick listener
+                    document.querySelector(".fullscreen-icon").onclick = null;
+
+                    document.querySelector(".fullscreen-icon").addEventListener("click", function(e)
+                    {
+                        // need to null out the onclick listener again because it will reattach
+                        document.querySelector(".fullscreen-icon").onclick = null;
+
+                        var isFullscreen = document.body.getAttribute("faux-fullscreen");
+
+                        if (isFullscreen != null)
+                        {
+                            exitFullScreen();
+                        }
+                        else
+                        {
+                            enterFullScreen();
+                        }
+                    });
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    fullScreenMutationObserver.observe(container, config);
+}
+
 function initShareButtonMutationObserver()
 {
     // The Share buttons onclick event listener gets re-initialized any time a c3-material-button-button is clicked.
@@ -239,6 +279,24 @@ function initTapHighlightColor()
 // public functions
 // must return 'success';
 //////////////////////////////////////////////////////////////////////////
+
+function enterFullScreen()
+{
+    document.body.setAttribute("faux-fullscreen", true);
+
+    window.androidWebViewClient.enterFullScreen();
+
+    return 'successfully called enterFullScreen()';
+}
+
+function exitFullScreen()
+{
+    document.body.removeAttribute("faux-fullscreen");
+
+    window.androidWebViewClient.exitFullScreen();
+
+    return 'successfully called exitFullScreen()';
+}
 
 function tapFullScreenButton()
 {

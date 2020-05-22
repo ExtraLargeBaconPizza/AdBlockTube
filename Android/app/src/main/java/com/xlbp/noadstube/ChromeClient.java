@@ -22,11 +22,11 @@ public class ChromeClient extends WebChromeClient
     @Override
     public void onShowCustomView(View view, WebChromeClient.CustomViewCallback customViewCallback)
     {
-        setOrientationToLandScape();
+        _mainActivity.setIsFullScreen(true);
+
+        Helpers.setOrientationToLandScape(_mainActivity);
 
         _fullScreenFrameLayout.addView(view, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        _mainActivity.setIsFullScreen(true);
     }
 
     // Exit FullScreen
@@ -35,11 +35,11 @@ public class ChromeClient extends WebChromeClient
     {
         super.onHideCustomView();
 
-        setOrientationToPortrait();
+        _mainActivity.setIsFullScreen(false);
+
+        Helpers.setOrientationToPortrait(_mainActivity);
 
         _fullScreenFrameLayout.removeAllViews();
-
-        _mainActivity.setIsFullScreen(false);
     }
 
     @Override

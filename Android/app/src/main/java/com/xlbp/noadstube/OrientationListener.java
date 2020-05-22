@@ -12,16 +12,16 @@ public class OrientationListener extends OrientationEventListener
         _mainActivity = mainActivity;
         _javaScript = javaScript;
 
-        // Need to enable the event listener
+        // Need to enable the orientation event listener
         this.enable();
     }
 
     @Override
     public void onOrientationChanged(int orientation)
     {
-        if (MainActivity.IsPremium)
+        if (MainActivity.IsPremium && _isWatchUrl)
         {
-            int epsilon = 10;
+            int epsilon = 15;
             int portrait = 0;
             int leftLandscape = 90;
             int rightLandscape = 270;
@@ -34,9 +34,7 @@ public class OrientationListener extends OrientationEventListener
 
                     if (_mainActivity.getIsFullScreen())
                     {
-                        _mainActivity.setIsFullScreen(false);
-
-                        _javaScript.tapFullScreenButton();
+                        _javaScript.exitFullScreen();
                     }
                 }
             }
@@ -49,13 +47,16 @@ public class OrientationListener extends OrientationEventListener
 
                     if (!_mainActivity.getIsFullScreen())
                     {
-                        _mainActivity.setIsFullScreen(true);
-
-                        _javaScript.tapFullScreenButton();
+                        _javaScript.enterFullScreen();
                     }
                 }
             }
         }
+    }
+
+    public void setIsWatchUrl(boolean isWatchUrl)
+    {
+        _isWatchUrl = isWatchUrl;
     }
 
     private boolean epsilonCheck(int a, int b, int epsilon)
@@ -68,4 +69,5 @@ public class OrientationListener extends OrientationEventListener
     private JavaScript _javaScript;
 
     private boolean _isLandScape;
+    private boolean _isWatchUrl;
 }
