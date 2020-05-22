@@ -1,5 +1,6 @@
 package com.xlbp.noadstube;
 
+import android.content.Intent;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -22,6 +23,11 @@ public class JavaScript
     public void tapFullScreenButton()
     {
         evaluate("tapFullScreenButton();");
+    }
+
+    public void addShareButtonEventListener()
+    {
+        evaluate("addShareButtonEventListener();");
     }
 
     private void initJavaScript()
@@ -47,7 +53,7 @@ public class JavaScript
         }
         else
         {
-            Log.e("JavaScript", "Code eval failed. Calling again: " + code);
+            Log.e("JavaScript", "Code eval failed. Calling again");
 
             evaluate(code);
         }
@@ -56,9 +62,20 @@ public class JavaScript
     private class JavaScriptInterface
     {
         @JavascriptInterface
-        public void simulateClick(float x, float y)
+        public void simulateTap(float x, float y)
         {
-            _mainActivity.simulateClick(x, y);
+            Helpers.simulateTap(_mainActivity, x, y);
+        }
+
+        @JavascriptInterface
+        public void shareClicked(String url)
+        {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, url);
+            sendIntent.setType("text/plain");
+
+            _mainActivity.startActivity(Intent.createChooser(sendIntent, "Share This Video"));
         }
     }
 

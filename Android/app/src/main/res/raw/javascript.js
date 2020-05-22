@@ -1,4 +1,8 @@
 
+// probably useful for finding the double click event
+// getEventListeners(document); replace document with video player
+
+
 // this is the sudo constructor
 (function ()
 {
@@ -6,9 +10,13 @@
 
     initMenuButtonMutationObserver();
 
+    initAccountMenuSkip();
+
     initSignInMutationObserver();
 
-    initAccountMenuSkip();
+    initSignInMutationObserver();
+
+    initShareButtonMutationObserver();
 
     initTapHighlightColor();
 
@@ -83,47 +91,28 @@ function initMenuButtonMutationObserver()
                 {
                     node.style.display = "none";
                 }
-            }
-        }
-    });
 
-    var container = document.documentElement;
-    var config = { childList: true, subtree: true };
-
-    menuButtonMutationObserver.observe(container, config);
-}
-
-// initSignInMutationObserver
-function initSignInMutationObserver()
-{
-    var signInMutationObserver = new MutationObserver(function(mutations)
-    {
-        if (window.location.href.includes("accounts"))
-        {
-            for (var mutation of mutations)
-            {
-                for (var node of mutation.addedNodes)
+                if (node.nodeName == "YTM-TOPBAR-MENU-BUTTON-RENDERER")
                 {
-                    if (node.nodeName == 'FOOTER')
+                    if(!node.innerHTML.includes("ytm-profile-icon"))
                     {
-                        node.style.display = "none";
-                    }
+                        var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
 
-                    if (node.textContent.includes('Forgot') || node.textContent.includes('Learn')  || node.textContent.includes('Create'))
-                    {
-                        removeUnwantedSignInElements();
+                        accountButton.setAttribute("onclick", "window.location.href = 'https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Dm%26hl%3Den%26next%3Dhttps%253A%252F%252Fm.youtube.com%252F%253Fnoapp%253D1&hl=en'");
                     }
                 }
             }
         }
     });
 
+    // container always needs to be document.documentElement because it will never be null
     var container = document.documentElement;
     var config = { childList: true, subtree: true };
 
-    signInMutationObserver.observe(container, config);
+    menuButtonMutationObserver.observe(container, config);
 }
 
+// We cant use a mutation observer because we're skipping a screen
 function initAccountMenuSkip()
 {
     window.addEventListener('popstate', function (event)
@@ -149,22 +138,96 @@ function initAccountMenuSkip()
                     document.querySelector("#menu").style.display = "block";
                     clearInterval(checkExist);
                 }
-
-                // not signed in
-                if (document.querySelector(".compact-link-metadata") != null && !isSignedIn)
-                {
-                    // Hide all the choices that can mess up the app
-                    document.querySelector(".multi-page-menu-system-link-list").style.display = "none";
-
-                    // Hide footer
-                    document.querySelector("ytm-privacy-tos-footer-renderer").style.display = "none";
-
-                    document.querySelector("#menu").style.display = "block";
-                    clearInterval(checkExist);
-                }
             }, 10);
         }
     });
+}
+
+// initSignInMutationObserver
+function initSignInMutationObserver()
+{
+    var signInMutationObserver = new MutationObserver(function(mutations)
+    {
+        if (window.location.href.includes("accounts"))
+        {
+            for (var mutation of mutations)
+            {
+                for (var node of mutation.addedNodes)
+                {
+                    if (node.nodeName == 'FOOTER')
+                    {
+                        node.style.display = "none";
+                    }
+
+                    if (node.textContent.includes('Forgot') || node.textContent.includes('Learn')  || node.textContent.includes('Create'))
+                    {
+                        removeUnwantedSignInElements();
+                    }
+
+                    // this is a different login flow for some reason
+                    if (node.nodeName == 'UL' && node.id == "footer-list")
+                    {
+                        node.parentNode.parentNode.style.display = "none";
+                    }
+
+                    if (node.textContent.includes("Find my account") || node.textContent.includes("Create account") )
+                    {
+//                        node.style.display = "none";
+                    }
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    signInMutationObserver.observe(container, config);
+}
+
+function initShareButtonMutationObserver()
+{
+    // The Share buttons onclick event listener gets re-initialized any time a c3-material-button-button is clicked.
+    // We need to use addEventListener to not override the other buttons onclick eventlisteners.
+    var shareButtonMutationObserver = new MutationObserver(function(mutations)
+    {
+        for (var mutation of mutations)
+        {
+            for (var node of mutation.addedNodes)
+            {
+                if(node.nodeName == "BUTTON" && node.classList.contains("c3-material-button-button"))
+                {
+                    if (node.innerText.includes("Share"))
+                    {
+                        // remove onclick event listener at the start
+                        document.querySelector('[aria-label="Share"]').onclick = null;
+
+                        node.addEventListener("click", function()
+                        {
+                            // remove onclick whenever the share button is clicked
+                            // can't use node because it will not persists
+                            document.querySelector('[aria-label="Share"]').onclick = null;
+
+                            window.androidWebViewClient.shareClicked(window.location.href);
+                        });
+                    }
+                    else
+                    {
+                        node.addEventListener("click", function(e)
+                        {
+                            // remove share onclick event any time a different c3-material-button-button is clicked
+                            document.querySelector('[aria-label="Share"]').onclick = null;
+                        });
+                    }
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    shareButtonMutationObserver.observe(container, config);
 }
 
 function initTapHighlightColor()
@@ -193,23 +256,19 @@ function tapFullScreenButton()
         var playerContainer = document.querySelector('#player-control-overlay');
         playerContainer.style.display = "none";
 
-        // Need to delay first click so that the container has time to set its opacity to 0
-        setTimeout(function()
-        {
-            window.androidWebViewClient.simulateClick(x, y);
-        }, 50);
+        window.androidWebViewClient.simulateTap(x, y);
 
         // Need to delay the second click so its not a double click
         setTimeout(function()
         {
-            window.androidWebViewClient.simulateClick(x, y);
+            window.androidWebViewClient.simulateTap(x, y);
 
             playerContainer.style.display = "block";
-        }, 650);
+        }, 600);
     }
     else
     {
-        window.androidWebViewClient.simulateClick(x, y);
+        window.androidWebViewClient.simulateTap(x, y);
     }
 
     return 'successfully called tapFullScreenButton()';

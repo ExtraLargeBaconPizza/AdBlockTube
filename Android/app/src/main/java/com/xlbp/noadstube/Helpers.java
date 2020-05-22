@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.SystemClock;
 import android.view.DisplayCutout;
+import android.view.MotionEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,7 +43,9 @@ public class Helpers
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density + 0.5f);
     }
 
-    public static int getSafeInsetTop(Context context)
+    public static int SafeInsetTop;
+
+    public static void initSafeInsetTop(Context context)
     {
         int safeInsetTop = 0;
 
@@ -62,7 +66,43 @@ public class Helpers
             safeInsetTop = Helpers.dpToPixels(24);
         }
 
-        return safeInsetTop;
+        SafeInsetTop = safeInsetTop;
     }
 
+    public static void simulateTap(MainActivity mainActivity, float x, float y)
+    {
+        x = Helpers.dpToPixels(x);
+        y = Helpers.dpToPixels(y);
+
+        if (mainActivity.getIsFullScreen())
+        {
+            y += SafeInsetTop;
+        }
+
+        // todo - refactor this
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        MotionEvent.PointerProperties[] properties = new MotionEvent.PointerProperties[1];
+        MotionEvent.PointerProperties pp1 = new MotionEvent.PointerProperties();
+        pp1.id = 0;
+        pp1.toolType = MotionEvent.TOOL_TYPE_FINGER;
+        properties[0] = pp1;
+        MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[1];
+        MotionEvent.PointerCoords pc1 = new MotionEvent.PointerCoords();
+        pc1.x = x;
+        pc1.y = y;
+        pc1.pressure = 1;
+        pc1.size = 1;
+        pointerCoords[0] = pc1;
+
+        MotionEvent motionEvent = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_DOWN, 1, properties,
+                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
+        mainActivity.dispatchTouchEvent(motionEvent);
+
+        motionEvent = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_UP, 1, properties,
+                pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
+        mainActivity.dispatchTouchEvent(motionEvent);
+    }
 }
