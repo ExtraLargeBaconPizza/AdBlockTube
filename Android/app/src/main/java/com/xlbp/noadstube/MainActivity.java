@@ -16,6 +16,13 @@ import java.net.URISyntaxException;
 // set my app as default? deep linking
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text
 // onPause  / onResume / re-hydration testing
+//
+// end screen
+// Set end screen buttons top to 40% from 33%
+// if in fullscreen and not autoplay, pop them out of fullscreen
+
+
+// fullscreen
 // null check on exit fullscreen?
 // full screen error? stays same size as portrait
 // test on tablets to make sure it goes to the mobile site
@@ -24,14 +31,14 @@ import java.net.URISyntaxException;
 // dark mode
 // casting
 // mini video (swipe to lower etc)
+//
+// fullscreen
 // end of video, whilst fullscreen
-// play audio in background / meh
-// fullscreen remove double tap. look in the website script, change player_doubletap_to_seek=true to false;
-// test out calling youtube's function directly through getEventListeners approach
+// fullscreen resolution settings pops out of faux fullscreen and causes problems. Maybe setup mutation observer for that attribute?
 
 public class MainActivity extends AppCompatActivity
 {
-    public static final boolean IsPremium = true;
+    public static final boolean IsPremium = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -155,7 +162,12 @@ public class MainActivity extends AppCompatActivity
             _javaScript.init();
         }
 
-        _orientationListener.setIsWatchUrl(url.contains("watch"));
+        boolean isWatchScreen = url.contains("watch");
+
+        if (IsPremium)
+        {
+            _orientationListener.setIsWatchUrl(isWatchScreen);
+        }
     }
 
 

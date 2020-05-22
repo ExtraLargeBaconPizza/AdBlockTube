@@ -1,20 +1,24 @@
 // this is the sudo constructor
 (function ()
 {
+    // The point of the app
     initAdsMutationObserver();
 
+    // Menu/Account
     initMenuButtonMutationObserver();
 
     initAccountMenuSkip();
 
     initSignInMutationObserver();
 
-    initSignInMutationObserver();
+    // Watch screen specific
+    initFullScreenMutationObserver();
 
     initShareButtonMutationObserver();
 
-    initFullScreenMutationObserver();
+    initVideoEndedMutationObserver();
 
+    // Hide blue click
     initTapHighlightColor();
 
     return 'successfully loaded javascript.js';
@@ -94,7 +98,7 @@ function initMenuButtonMutationObserver()
                     if(!node.innerHTML.includes("ytm-profile-icon"))
                     {
                         var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
-
+                        // Todo I guess can be changed to oncick or addeventlistener("click", function(e){ ....
                         accountButton.setAttribute("onclick", "window.location.href = 'https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Dm%26hl%3Den%26next%3Dhttps%253A%252F%252Fm.youtube.com%252F%253Fnoapp%253D1&hl=en'");
                     }
                 }
@@ -167,6 +171,7 @@ function initSignInMutationObserver()
                         node.parentNode.parentNode.style.display = "none";
                     }
 
+                    // TODO - handle alternate sign in route
                     if (node.textContent.includes("Find my account") || node.textContent.includes("Create account") )
                     {
 //                        node.style.display = "none";
@@ -270,6 +275,58 @@ function initShareButtonMutationObserver()
     shareButtonMutationObserver.observe(container, config);
 }
 
+// initVideoEndedMutationObserver
+function initVideoEndedMutationObserver()
+{
+    var videoEndedMutationObserver = new MutationObserver(function(mutations)
+    {
+        for (var mutation of mutations)
+        {
+            if (mutation.target.classList.contains('html5-endscreen') && mutation.attributeName == "style")
+            {
+                // need to determine if the end screen is showing
+                if(!mutation.target.style.display.includes('none'))
+                {
+                    let isAutoPlayEnabled = document.querySelector('[aria-label="Autoplay"]').getAttribute("aria-pressed");
+
+                    if (isAutoPlayEnabled.includes("false"))
+                    {
+                        exitFullScreen();
+
+                        // endscreen buttons don't look vertically centered
+                        document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
+                        document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
+                        document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+
+                        // if the video is a replay, make sure the endscreen contents are shown
+                        document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
+                    }
+                    else
+                    {
+                        // Need to ensure endscreen contents are not shown. This covers for a youtube bug where if we replayed a video
+                        // and autoplay is on, when the video ends both autoplay and endscreen will be visible. Yikes
+                        document.querySelector('.ytp-mweb-endscreen-contents').style.display = "none";
+
+                        // add event listener to "cancel autoplay" button to exit fullscreen and display endscreen
+                        // need null check so the event is only added once
+                        document.querySelector('[aria-label="Cancel autoplay"]').addEventListener("click", function(e)
+                        {
+                            exitFullScreen();
+
+                            document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
+                        });
+                    }
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { attributes: true,  childList: true, subtree: true };
+
+    videoEndedMutationObserver.observe(container, config);
+}
+
 function initTapHighlightColor()
 {
     document.documentElement.style.webkitTapHighlightColor = "#00000000";
@@ -291,45 +348,13 @@ function enterFullScreen()
 
 function exitFullScreen()
 {
+    console.log("exitFullScreen ");
+
     document.body.removeAttribute("faux-fullscreen");
 
     window.androidWebViewClient.exitFullScreen();
 
     return 'successfully called exitFullScreen()';
-}
-
-function tapFullScreenButton()
-{
-    var fullScreenIcon = document.querySelector('.fullscreen-icon');
-    var fullScreenIconRect = fullScreenIcon.getBoundingClientRect();
-
-    var x = (fullScreenIconRect.left + fullScreenIconRect.right) / 2;
-    var y = (fullScreenIconRect.top + fullScreenIconRect.bottom) / 2;
-
-    // If the the control overlay is not showing, the first click will only bring it up.
-    // In that case, we need to click a second time
-    if (document.querySelector('.fadein') == null)
-    {
-        // Get the player controls first so they can be hidden ASAP
-        var playerContainer = document.querySelector('#player-control-overlay');
-        playerContainer.style.display = "none";
-
-        window.androidWebViewClient.simulateTap(x, y);
-
-        // Need to delay the second click so its not a double click
-        setTimeout(function()
-        {
-            window.androidWebViewClient.simulateTap(x, y);
-
-            playerContainer.style.display = "block";
-        }, 600);
-    }
-    else
-    {
-        window.androidWebViewClient.simulateTap(x, y);
-    }
-
-    return 'successfully called tapFullScreenButton()';
 }
 
 //////////////////////////////////////////////////////////////////////////

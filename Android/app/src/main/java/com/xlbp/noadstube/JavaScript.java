@@ -30,16 +30,6 @@ public class JavaScript
         evaluate("exitFullScreen();");
     }
 
-    public void tapFullScreenButton()
-    {
-        evaluate("tapFullScreenButton();");
-    }
-
-    public void addShareButtonEventListener()
-    {
-        evaluate("addShareButtonEventListener();");
-    }
-
     private void initJavaScript()
     {
         String javaScript = Helpers.readTextFromResource(_mainActivity, R.raw.javascript);
