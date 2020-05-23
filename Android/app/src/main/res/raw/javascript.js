@@ -98,7 +98,7 @@ function initMenuButtonMutationObserver()
                     if(!node.innerHTML.includes("ytm-profile-icon"))
                     {
                         var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
-                        // Todo I guess can be changed to oncick or addeventlistener("click", function(e){ ....
+
                         accountButton.setAttribute("onclick", "window.location.href = 'https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Dm%26hl%3Den%26next%3Dhttps%253A%252F%252Fm.youtube.com%252F%253Fnoapp%253D1&hl=en'");
                     }
                 }
@@ -287,16 +287,17 @@ function initVideoEndedMutationObserver()
                 // need to determine if the end screen is showing
                 if(!mutation.target.style.display.includes('none'))
                 {
+                    // Need to do some quick visual adjustment that bugs me.  Endscreen buttons don't look vertically centered
+                    document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
+                    document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
+                    document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+
                     let isAutoPlayEnabled = document.querySelector('[aria-label="Autoplay"]').getAttribute("aria-pressed");
 
                     if (isAutoPlayEnabled.includes("false"))
                     {
-                        exitFullScreen();
 
-                        // endscreen buttons don't look vertically centered
-                        document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
-                        document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
-                        document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+                        exitFullScreen();
 
                         // if the video is a replay, make sure the endscreen contents are shown
                         document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
@@ -305,7 +306,10 @@ function initVideoEndedMutationObserver()
                     {
                         // Need to ensure endscreen contents are not shown. This covers for a youtube bug where if we replayed a video
                         // and autoplay is on, when the video ends both autoplay and endscreen will be visible. Yikes
-                        document.querySelector('.ytp-mweb-endscreen-contents').style.display = "none";
+                        if (document.querySelector('.ytp-mweb-endscreen-contents') != null)
+                        {
+                            document.querySelector('.ytp-mweb-endscreen-contents').style.display = "none";
+                        }
 
                         // add event listener to "cancel autoplay" button to exit fullscreen and display endscreen
                         // need null check so the event is only added once
@@ -322,7 +326,7 @@ function initVideoEndedMutationObserver()
     });
 
     var container = document.documentElement;
-    var config = { attributes: true,  childList: true, subtree: true };
+    var config = { attributes: true, childList: true, subtree: true };
 
     videoEndedMutationObserver.observe(container, config);
 }
@@ -348,8 +352,6 @@ function enterFullScreen()
 
 function exitFullScreen()
 {
-    console.log("exitFullScreen ");
-
     document.body.removeAttribute("faux-fullscreen");
 
     window.androidWebViewClient.exitFullScreen();

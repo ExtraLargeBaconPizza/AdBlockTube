@@ -2,6 +2,7 @@ package com.xlbp.noadstube;
 
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -61,12 +62,6 @@ public class JavaScript
 
     private class JavaScriptInterface
     {
-        @JavascriptInterface
-        public void simulateTap(float x, float y)
-        {
-            Helpers.simulateTap(_mainActivity, x, y);
-        }
-
         @JavascriptInterface
         public void enterFullScreen()
         {

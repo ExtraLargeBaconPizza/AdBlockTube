@@ -11,30 +11,23 @@ import android.webkit.WebView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-// TODO
+// TODO FREE
 // logo and design bullshit
 // set my app as default? deep linking
+
+// TODO Testing
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text
 // onPause  / onResume / re-hydration testing
-//
-// end screen
-// Set end screen buttons top to 40% from 33%
-// if in fullscreen and not autoplay, pop them out of fullscreen
-
-
-// fullscreen
-// null check on exit fullscreen?
-// full screen error? stays same size as portrait
 // test on tablets to make sure it goes to the mobile site
+
 
 // TODO Pro aka v2
 // dark mode
 // casting
-// mini video (swipe to lower etc)
+// mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
 //
 // fullscreen
-// end of video, whilst fullscreen
-// fullscreen resolution settings pops out of faux fullscreen and causes problems. Maybe setup mutation observer for that attribute?
+// use orientation change to handle enter/exit fullscreen since its more reliable, then use orientation listener to reset to default or w/e
 
 public class MainActivity extends AppCompatActivity
 {
@@ -77,6 +70,19 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
 
         _webView.restoreState(savedInstanceState);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+
+        // This is needed for when the Quality Settings radio button dialog is displayed. If the video is in
+        // fullscreen, the navigation and status bar will be displayed and stay.
+        if (!hasFocus && _isFullScreen)
+        {
+            Helpers.setOrientationToLandScape(this);
+        }
     }
 
     public void doUpdateVisitedHistory(String url)
