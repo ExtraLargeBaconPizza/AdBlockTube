@@ -1,6 +1,5 @@
-package com.xlbp.noadstube;
+package com.xlbp.adfreetube;
 
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 

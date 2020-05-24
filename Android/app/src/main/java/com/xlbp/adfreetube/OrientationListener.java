@@ -1,6 +1,5 @@
-package com.xlbp.noadstube;
+package com.xlbp.adfreetube;
 
-import android.content.Context;
 import android.view.OrientationEventListener;
 
 public class OrientationListener extends OrientationEventListener

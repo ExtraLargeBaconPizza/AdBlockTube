@@ -1,15 +1,9 @@
-package com.xlbp.noadstube;
+package com.xlbp.adfreetube;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.DisplayCutout;
-import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.ByteArrayOutputStream;

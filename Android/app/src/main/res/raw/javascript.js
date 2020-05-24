@@ -288,15 +288,26 @@ function initVideoEndedMutationObserver()
                 if(!mutation.target.style.display.includes('none'))
                 {
                     // Need to do some quick visual adjustment that bugs me.  Endscreen buttons don't look vertically centered
-                    document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
-                    document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
-                    document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+                    if (document.querySelector('[aria-label="Previous Video"]') != null)
+                    {
+                        document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
+                    }
+
+                    if (document.querySelector('[aria-label="Replay Video"]') != null)
+                    {
+                        document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
+                    }
+
+                    if (document.querySelector('[aria-label="Next Video"]') != null)
+                    {
+                        document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+                    }
+                    // end visual adjustment
 
                     let isAutoPlayEnabled = document.querySelector('[aria-label="Autoplay"]').getAttribute("aria-pressed");
 
                     if (isAutoPlayEnabled.includes("false"))
                     {
-
                         exitFullScreen();
 
                         // if the video is a replay, make sure the endscreen contents are shown

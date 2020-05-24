@@ -1,10 +1,9 @@
-package com.xlbp.noadstube;
+package com.xlbp.adfreetube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -14,6 +13,7 @@ import java.net.URISyntaxException;
 // TODO FREE
 // logo and design bullshit
 // set my app as default? deep linking
+// back navigation when fullscreen
 
 // TODO Testing
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text
@@ -23,10 +23,16 @@ import java.net.URISyntaxException;
 
 // TODO Pro aka v2
 // dark mode
+// change this <link rel="stylesheet" href="/yts/cssbin/mobile-c3-light-2x-webp-vflge5AKT.css" name="mobile-c3-light">
+// to this <link rel="stylesheet" href="/yts/cssbin/mobile-c3-dark-2x-webp-vflsnnN5Q.css" name="mobile-c3-dark">
+//
 // casting
+//
 // mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
 //
-// fullscreen
+// full zoom for two finger zoom gesture
+//
+// sensor based fullscreen
 // use orientation change to handle enter/exit fullscreen since its more reliable, then use orientation listener to reset to default or w/e
 
 public class MainActivity extends AppCompatActivity
@@ -44,9 +50,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        if (_isFullScreen)
+        {
+            Helpers.setOrientationToLandScape(this);
+        }
+    }
+
+    @Override
     public void onBackPressed()
     {
-        if (_webView.canGoBack())
+        if (_isFullScreen)
+        {
+            _javaScript.exitFullScreen();
+        }
+        else if (_webView.canGoBack())
         {
             _webView.goBack();
         }
