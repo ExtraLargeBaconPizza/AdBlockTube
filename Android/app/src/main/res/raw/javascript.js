@@ -137,6 +137,15 @@ function initAccountMenuSkip()
                 if (document.querySelector('#simple-menu-header-title').innerText.includes("Accounts"))
                 {
                     document.querySelector("#menu").style.display = "block";
+
+                    // This is needed to fix a m.youtube bug. User could not scroll after pressing the 'x' button
+                    // in the accounts screen. This was caused because the 'modal-open-body' attribute is not being removed
+                    // from the body element. So we need to do it manually
+                    document.querySelector("#simple-menu-header-close-button").addEventListener("click", function(e)
+                    {
+                        document.body.removeAttribute("modal-open-body");
+                    });
+
                     clearInterval(checkExist);
                 }
             }, 10);
