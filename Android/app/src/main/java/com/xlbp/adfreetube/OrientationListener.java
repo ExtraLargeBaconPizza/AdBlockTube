@@ -1,15 +1,21 @@
 package com.xlbp.adfreetube;
 
+import android.util.Log;
 import android.view.OrientationEventListener;
 
+// the whole point of this class is to unlock the screen orientation
 public class OrientationListener extends OrientationEventListener
 {
-    public OrientationListener(MainActivity mainActivity, JavaScript javaScript)
+    public OrientationListener(MainActivity mainActivity)
     {
         super(mainActivity);
 
         _mainActivity = mainActivity;
-        _javaScript = javaScript;
+
+        _epsilon = 10;
+        _portrait = 0;
+        _leftLandscape = 90;
+        _rightLandscape = 270;
 
         // Need to enable the orientation event listener
         this.enable();
@@ -18,36 +24,29 @@ public class OrientationListener extends OrientationEventListener
     @Override
     public void onOrientationChanged(int orientation)
     {
-        if (MainActivity.IsPremium && _isWatchUrl)
+        if (_isWatchingVideo)
         {
-            int epsilon = 15;
-            int portrait = 0;
-            int leftLandscape = 90;
-            int rightLandscape = 270;
-
-            if (epsilonCheck(orientation, portrait, epsilon))
+            if (!_isLandScape && _mainActivity.getIsFullScreen())
             {
-                if (_isLandScape)
+                if (epsilonCheck(orientation, _leftLandscape, _epsilon) || epsilonCheck(orientation, _rightLandscape, _epsilon))
                 {
-                    _isLandScape = false;
+                    Log.e("OrientationListener", "_isLandScape = true");
 
-                    if (_mainActivity.getIsFullScreen())
-                    {
-                        _javaScript.exitFullScreen();
-                    }
+                    _isLandScape = true;
+
+                    Helpers.setOrientationToSensor(_mainActivity);
                 }
             }
 
-            if (epsilonCheck(orientation, leftLandscape, epsilon) || epsilonCheck(orientation, rightLandscape, epsilon))
+            if (_isLandScape && !_mainActivity.getIsFullScreen())
             {
-                if (!_isLandScape)
+                if (epsilonCheck(orientation, _portrait, _epsilon))
                 {
-                    _isLandScape = true;
+                    Log.e("OrientationListener", "_isLandScape = false");
 
-                    if (!_mainActivity.getIsFullScreen())
-                    {
-                        _javaScript.enterFullScreen();
-                    }
+                    _isLandScape = false;
+
+                    Helpers.setOrientationToSensor(_mainActivity);
                 }
             }
         }
@@ -55,7 +54,7 @@ public class OrientationListener extends OrientationEventListener
 
     public void setIsWatchUrl(boolean isWatchUrl)
     {
-        _isWatchUrl = isWatchUrl;
+        _isWatchingVideo = isWatchUrl;
     }
 
     private boolean epsilonCheck(int a, int b, int epsilon)
@@ -65,8 +64,12 @@ public class OrientationListener extends OrientationEventListener
 
 
     private MainActivity _mainActivity;
-    private JavaScript _javaScript;
 
     private boolean _isLandScape;
-    private boolean _isWatchUrl;
+    private boolean _isWatchingVideo;
+
+    private int _epsilon;
+    private int _portrait;
+    private int _leftLandscape;
+    private int _rightLandscape;
 }

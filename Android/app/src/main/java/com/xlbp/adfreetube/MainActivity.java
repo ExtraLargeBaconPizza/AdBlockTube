@@ -2,6 +2,7 @@ package com.xlbp.adfreetube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -13,19 +14,16 @@ import java.net.URISyntaxException;
 // TODO FREE
 // logo and design bullshit
 // set my app as default? deep linking
-// back navigation when fullscreen
-
+// handle not connected to internet
+// screen locks up when coming back from account screen
+// check how often epsilonCheck is called
+//
 // TODO Testing
-// if video fails (listen for playback unplayable event from youtube?) or just search inner text
+// if video fails (listen for playback unplayable event from youtube?) or just search inner text (only seems to happen on chrome)
 // onPause  / onResume / re-hydration testing
 // test on tablets to make sure it goes to the mobile site
-
-
-// TODO Pro aka v2
-// dark mode
-// change this <link rel="stylesheet" href="/yts/cssbin/mobile-c3-light-2x-webp-vflge5AKT.css" name="mobile-c3-light">
-// to this <link rel="stylesheet" href="/yts/cssbin/mobile-c3-dark-2x-webp-vflsnnN5Q.css" name="mobile-c3-dark">
 //
+// TODO Pro aka v2
 // casting
 //
 // mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
@@ -37,8 +35,6 @@ import java.net.URISyntaxException;
 
 public class MainActivity extends AppCompatActivity
 {
-    public static final boolean IsPremium = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -74,6 +70,25 @@ public class MainActivity extends AppCompatActivity
         else
         {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        if (_isWatchingVideo)
+        {
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            {
+                _javaScript.enterFullScreen();
+            }
+
+            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+            {
+                _javaScript.exitFullScreen();
+            }
         }
     }
 
@@ -157,12 +172,9 @@ public class MainActivity extends AppCompatActivity
 
     private void initOrientationEventListener()
     {
-        _chromeClient.setOrientationToPortrait();
+        Helpers.setOrientationToPortrait(this);
 
-        if (IsPremium)
-        {
-            _orientationListener = new OrientationListener(this, _javaScript);
-        }
+        _orientationListener = new OrientationListener(this);
     }
 
     private void handleNewUrl(String url)
@@ -189,11 +201,13 @@ public class MainActivity extends AppCompatActivity
             _javaScript.init();
         }
 
-        boolean isWatchScreen = url.contains("watch");
+        _isWatchingVideo = url.contains("watch");
 
-        if (IsPremium)
+        _orientationListener.setIsWatchUrl(_isWatchingVideo);
+
+        if (_isWatchingVideo)
         {
-            _orientationListener.setIsWatchUrl(isWatchScreen);
+            Helpers.setOrientationToSensor(this);
         }
     }
 
@@ -204,5 +218,6 @@ public class MainActivity extends AppCompatActivity
     private OrientationListener _orientationListener;
 
     private String _currentUrlDomain;
+    private boolean _isWatchingVideo;
     private boolean _isFullScreen;
 }

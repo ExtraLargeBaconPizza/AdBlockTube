@@ -22,12 +22,12 @@ public class JavaScript
 
     public void enterFullScreen()
     {
-        evaluate("enterFullScreen();");
+        evaluate("enterFullScreen(false);");
     }
 
     public void exitFullScreen()
     {
-        evaluate("exitFullScreen();");
+        evaluate("exitFullScreen(false);");
     }
 
     private void initJavaScript()
@@ -62,19 +62,35 @@ public class JavaScript
     private class JavaScriptInterface
     {
         @JavascriptInterface
-        public void enterFullScreen()
+        public void onEnterFullScreen(boolean forceOrientationChange)
         {
-            _mainActivity.setIsFullScreen(true);
+            if (!_mainActivity.getIsFullScreen())
+            {
+                _mainActivity.setIsFullScreen(true);
 
-            Helpers.setOrientationToLandScape(_mainActivity);
+                Helpers.hideNavigationAndStatusBars(_mainActivity);
+
+                if (forceOrientationChange)
+                {
+                    Helpers.setOrientationToLandScape(_mainActivity);
+                }
+            }
         }
 
         @JavascriptInterface
-        public void exitFullScreen()
+        public void onExitFullScreen(boolean forceOrientationChange)
         {
-            _mainActivity.setIsFullScreen(false);
+            if (_mainActivity.getIsFullScreen())
+            {
+                _mainActivity.setIsFullScreen(false);
 
-            Helpers.setOrientationToPortrait(_mainActivity);
+                Helpers.showNavigationAndStatusBars(_mainActivity);
+
+                if (forceOrientationChange)
+                {
+                    Helpers.setOrientationToPortrait(_mainActivity);
+                }
+            }
         }
 
         @JavascriptInterface

@@ -212,11 +212,11 @@ function initFullScreenMutationObserver()
 
                         if (isFullscreen != null)
                         {
-                            exitFullScreen();
+                            exitFullScreen(true);
                         }
                         else
                         {
-                            enterFullScreen();
+                            enterFullScreen(true);
                         }
                     });
                 }
@@ -308,7 +308,7 @@ function initVideoEndedMutationObserver()
 
                     if (isAutoPlayEnabled.includes("false"))
                     {
-                        exitFullScreen();
+                        exitFullScreen(true);
 
                         // if the video is a replay, make sure the endscreen contents are shown
                         document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
@@ -326,7 +326,7 @@ function initVideoEndedMutationObserver()
                         // need null check so the event is only added once
                         document.querySelector('[aria-label="Cancel autoplay"]').addEventListener("click", function(e)
                         {
-                            exitFullScreen();
+                            exitFullScreen(true);
 
                             document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
                         });
@@ -352,20 +352,20 @@ function initTapHighlightColor()
 // must return 'success';
 //////////////////////////////////////////////////////////////////////////
 
-function enterFullScreen()
+function enterFullScreen(forceOrientationChange)
 {
     document.body.setAttribute("faux-fullscreen", true);
 
-    window.androidWebViewClient.enterFullScreen();
+    window.androidWebViewClient.onEnterFullScreen(forceOrientationChange);
 
     return 'successfully called enterFullScreen()';
 }
 
-function exitFullScreen()
+function exitFullScreen(forceOrientationChange)
 {
     document.body.removeAttribute("faux-fullscreen");
 
-    window.androidWebViewClient.exitFullScreen();
+    window.androidWebViewClient.onExitFullScreen(forceOrientationChange);
 
     return 'successfully called exitFullScreen()';
 }
