@@ -20,14 +20,14 @@ public class JavaScript
         initJavaScript();
     }
 
-    public void enterFullScreen()
+    public void enterFullScreen(boolean forceLandscape)
     {
-        evaluate("enterFullScreen(false);");
+        evaluate("enterFullScreen(" + forceLandscape + ");");
     }
 
-    public void exitFullScreen()
+    public void exitFullScreen(boolean forcePortrait)
     {
-        evaluate("exitFullScreen(false);");
+        evaluate("exitFullScreen(" + forcePortrait + ");");
     }
 
     private void initJavaScript()
@@ -62,7 +62,7 @@ public class JavaScript
     private class JavaScriptInterface
     {
         @JavascriptInterface
-        public void onEnterFullScreen(boolean forceOrientationChange)
+        public void onEnterFullScreen(boolean forceLandscape)
         {
             if (!_mainActivity.getIsFullScreen())
             {
@@ -70,7 +70,7 @@ public class JavaScript
 
                 Helpers.hideNavigationAndStatusBars(_mainActivity);
 
-                if (forceOrientationChange)
+                if (forceLandscape)
                 {
                     Helpers.setOrientationToLandScape(_mainActivity);
                 }
@@ -78,7 +78,7 @@ public class JavaScript
         }
 
         @JavascriptInterface
-        public void onExitFullScreen(boolean forceOrientationChange)
+        public void onExitFullScreen(boolean forcePortrait)
         {
             if (_mainActivity.getIsFullScreen())
             {
@@ -86,7 +86,7 @@ public class JavaScript
 
                 Helpers.showNavigationAndStatusBars(_mainActivity);
 
-                if (forceOrientationChange)
+                if (forcePortrait)
                 {
                     Helpers.setOrientationToPortrait(_mainActivity);
                 }

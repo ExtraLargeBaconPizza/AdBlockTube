@@ -30,8 +30,6 @@ public class OrientationListener extends OrientationEventListener
             {
                 if (epsilonCheck(orientation, _leftLandscape, _epsilon) || epsilonCheck(orientation, _rightLandscape, _epsilon))
                 {
-                    Log.e("OrientationListener", "_isLandScape = true");
-
                     _isLandScape = true;
 
                     Helpers.setOrientationToSensor(_mainActivity);
@@ -42,8 +40,6 @@ public class OrientationListener extends OrientationEventListener
             {
                 if (epsilonCheck(orientation, _portrait, _epsilon))
                 {
-                    Log.e("OrientationListener", "_isLandScape = false");
-
                     _isLandScape = false;
 
                     Helpers.setOrientationToSensor(_mainActivity);

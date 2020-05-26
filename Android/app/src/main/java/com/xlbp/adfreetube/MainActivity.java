@@ -2,9 +2,13 @@ package com.xlbp.adfreetube;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -15,23 +19,18 @@ import java.net.URISyntaxException;
 // logo and design bullshit
 // set my app as default? deep linking
 // handle not connected to internet
-// screen locks up when coming back from account screen
 // check how often epsilonCheck is called
+// onresume after video ends, but autoplay isnt on
 //
 // TODO Testing
 // if video fails (listen for playback unplayable event from youtube?) or just search inner text (only seems to happen on chrome)
 // onPause  / onResume / re-hydration testing
 // test on tablets to make sure it goes to the mobile site
 //
-// TODO Pro aka v2
+// TODO Pro aka v2 not gunna charge
 // casting
-//
 // mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
-//
 // full zoom for two finger zoom gesture
-//
-// sensor based fullscreen
-// use orientation change to handle enter/exit fullscreen since its more reliable, then use orientation listener to reset to default or w/e
 
 public class MainActivity extends AppCompatActivity
 {
@@ -52,7 +51,9 @@ public class MainActivity extends AppCompatActivity
 
         if (_isFullScreen)
         {
-            Helpers.setOrientationToLandScape(this);
+            Helpers.hideNavigationAndStatusBars(this);
+
+            Helpers.setOrientationToSensor(this);
         }
     }
 
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity
     {
         if (_isFullScreen)
         {
-            _javaScript.exitFullScreen();
+            _javaScript.exitFullScreen(true);
         }
         else if (_webView.canGoBack())
         {
@@ -78,16 +79,18 @@ public class MainActivity extends AppCompatActivity
     {
         super.onConfigurationChanged(newConfig);
 
+        Log.e("MainActivity", "onConfigChange Landscape " + (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE));
+
         if (_isWatchingVideo)
         {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
             {
-                _javaScript.enterFullScreen();
+                _javaScript.enterFullScreen(false);
             }
 
             if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
             {
-                _javaScript.exitFullScreen();
+                _javaScript.exitFullScreen(false);
             }
         }
     }
@@ -138,20 +141,41 @@ public class MainActivity extends AppCompatActivity
 
     private void init()
     {
-        initWebView();
+        if (checkIfInternetAvailable())
+        {
+            initWebView();
 
-        initJavascript();
+            initJavascript();
 
-        initOrientationEventListener();
+            initOrientationEventListener();
+        }
+        else
+        {
+            showNoInternet();
+        }
+    }
+
+    private boolean checkIfInternetAvailable()
+    {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+        // if no network is available networkInfo will be null
+        // otherwise check if we are connected
+        if (networkInfo != null && networkInfo.isConnected())
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void initWebView()
     {
         _webView = findViewById(R.id.webView);
 
-        _chromeClient = new ChromeClient(this);
-        _webView.setWebChromeClient(_chromeClient);
-
+        _webView.setWebChromeClient(new ChromeClient());
         _webView.setWebViewClient(new ViewClient(this));
 
         _webView.getSettings().setJavaScriptEnabled(true);
@@ -211,9 +235,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void showNoInternet()
+    {
+        findViewById(R.id.noInternetTextView).setVisibility(View.VISIBLE);
+    }
 
     private WebView _webView;
-    private ChromeClient _chromeClient;
     private JavaScript _javaScript;
     private OrientationListener _orientationListener;
 

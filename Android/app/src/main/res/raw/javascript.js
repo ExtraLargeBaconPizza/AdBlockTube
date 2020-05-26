@@ -361,20 +361,20 @@ function initTapHighlightColor()
 // must return 'success';
 //////////////////////////////////////////////////////////////////////////
 
-function enterFullScreen(forceOrientationChange)
+function enterFullScreen(forceLandscape)
 {
     document.body.setAttribute("faux-fullscreen", true);
 
-    window.androidWebViewClient.onEnterFullScreen(forceOrientationChange);
+    window.androidWebViewClient.onEnterFullScreen(forceLandscape);
 
     return 'successfully called enterFullScreen()';
 }
 
-function exitFullScreen(forceOrientationChange)
+function exitFullScreen(forcePortrait)
 {
     document.body.removeAttribute("faux-fullscreen");
 
-    window.androidWebViewClient.onExitFullScreen(forceOrientationChange);
+    window.androidWebViewClient.onExitFullScreen(forcePortrait);
 
     return 'successfully called exitFullScreen()';
 }

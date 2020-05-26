@@ -7,13 +7,25 @@
         <option name="BUILDABLE" value="false" />
       </configuration>
     </facet>
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="GEN_FOLDER_RELATIVE_PATH_APT" value="/../../AdFreeTube/gen" />
+        <option name="GEN_FOLDER_RELATIVE_PATH_AIDL" value="/../../AdFreeTube/gen" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/../../AdFreeTube/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/../../AdFreeTube/res" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/../../AdFreeTube/assets" />
+        <option name="LIBS_FOLDER_RELATIVE_PATH" value="/../../AdFreeTube/libs" />
+        <option name="PROGUARD_LOGS_FOLDER_RELATIVE_PATH" value="/../../AdFreeTube/proguard_logs" />
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Android API 28 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

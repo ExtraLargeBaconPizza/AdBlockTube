@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AdFreeTube</string>
+    <string name="no_internet">You\'re offline.\n\nPlease check your connection\nand restart app</string>
 </resources>
