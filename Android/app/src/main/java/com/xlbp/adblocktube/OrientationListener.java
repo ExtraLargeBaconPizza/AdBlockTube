@@ -1,6 +1,5 @@
-package com.xlbp.adfreetube;
+package com.xlbp.adblocktube;
 
-import android.util.Log;
 import android.view.OrientationEventListener;
 
 // the whole point of this class is to unlock the screen orientation

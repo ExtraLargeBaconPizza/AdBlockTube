@@ -1,4 +1,4 @@
-package com.xlbp.adfreetube;
+package com.xlbp.adblocktube;
 
 import android.content.Intent;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package com.xlbp.adfreetube;
+package com.xlbp.adblocktube;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

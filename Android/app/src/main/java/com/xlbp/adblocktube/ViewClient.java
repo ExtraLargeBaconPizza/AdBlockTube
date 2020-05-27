@@ -1,7 +1,6 @@
-package com.xlbp.adfreetube;
+package com.xlbp.adblocktube;
 
 import android.os.Build;
-import android.util.Log;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
