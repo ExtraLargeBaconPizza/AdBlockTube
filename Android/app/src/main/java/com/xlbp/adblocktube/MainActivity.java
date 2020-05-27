@@ -222,6 +222,8 @@ public class MainActivity extends AppCompatActivity
     {
         _javaScript.init();
 
+        _javaScript.setCurrentScreen(url);
+
         _isWatchingVideo = url.contains("watch");
 
         _orientationListener.setIsWatchUrl(_isWatchingVideo);

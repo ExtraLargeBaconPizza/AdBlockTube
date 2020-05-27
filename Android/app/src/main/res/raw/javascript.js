@@ -9,8 +9,6 @@
 
 function init()
 {
-    isJavaScriptInitialized = true;
-
     // The point of the app
     initAdsMutationObserver();
 
@@ -40,44 +38,47 @@ function initAdsMutationObserver()
 {
     var adsMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen != "accounts")
         {
-            if(mutation.attributeName == "class")
+            for (var mutation of mutations)
             {
-                if (mutation.target.classList.contains('ad-showing'))
+                if(mutation.attributeName == "class")
                 {
-                    removeVideoAdSrc();
-                }
-            }
-            else if (mutation.type  == "childList")
-            {
-                for (var node of mutation.addedNodes)
-                {
-                    if (node.parentNode != null)
+                    if (mutation.target.classList.contains('ad-showing'))
                     {
-                        if (node.nodeName == 'YTM-PROMOTED-VIDEO-RENDERER')
+                        removeVideoAdSrc();
+                    }
+                }
+                else if (mutation.type  == "childList")
+                {
+                    for (var node of mutation.addedNodes)
+                    {
+                        if (node.parentNode != null)
                         {
-                            node.parentNode.removeChild(node);
-                        }
+                            if (node.nodeName == 'YTM-PROMOTED-VIDEO-RENDERER')
+                            {
+                                node.parentNode.removeChild(node);
+                            }
 
-                        if (node.nodeName == 'YTM-COMPANION-SLOT')
-                        {
-                            node.parentNode.removeChild(node);
-                        }
+                            if (node.nodeName == 'YTM-COMPANION-SLOT')
+                            {
+                                node.parentNode.removeChild(node);
+                            }
 
-                        if (node.nodeName == 'YTM-WATCH-METADATA-APP-PROMO-RENDERER')
-                        {
-                            node.parentNode.removeChild(node);
-                        }
+                            if (node.nodeName == 'YTM-WATCH-METADATA-APP-PROMO-RENDERER')
+                            {
+                                node.parentNode.removeChild(node);
+                            }
 
-                        if (node.nodeName == 'YTM-PROMOTED-SPARKLES-WEB-RENDERER' && node.parentNode.parentNode.parentNode != null)
-                        {
-                            node.parentNode.parentNode.parentNode.removeChild(node.parentNode.parentNode);
-                        }
+                            if (node.nodeName == 'YTM-PROMOTED-SPARKLES-WEB-RENDERER' && node.parentNode.parentNode.parentNode != null)
+                            {
+                                node.parentNode.parentNode.parentNode.removeChild(node.parentNode.parentNode);
+                            }
 
-                        if (node.classList != null && node.classList.contains("video-ads"))
-                        {
-                            node.parentNode.removeChild(node);
+                            if (node.classList != null && node.classList.contains("video-ads"))
+                            {
+                                node.parentNode.removeChild(node);
+                            }
                         }
                     }
                 }
@@ -97,42 +98,58 @@ function initHeaderMutationObserver()
 {
     var headerMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen != "accounts")
         {
-            for (var node of mutation.addedNodes)
+            for (var mutation of mutations)
             {
-                if (node.nodeName == 'YTM-MENU' && node.parentNode.classList.contains("mobile-topbar-header-content"))
+                for (var node of mutation.addedNodes)
                 {
-                    node.style.display = "none";
-                }
-
-                if (node.nodeName == "YTM-TOPBAR-MENU-BUTTON-RENDERER")
-                {
-                    if(!node.innerHTML.includes("ytm-profile-icon"))
+                    if (node.nodeName == 'YTM-MENU' && node.parentNode.classList.contains("mobile-topbar-header-content"))
                     {
-                        // add please wait to profile icon button
+                        node.style.display = "none";
+                    }
+
+                    if (node.nodeName == "YTM-TOPBAR-MENU-BUTTON-RENDERER")
+                    {
                         var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
 
-                        accountButton.onclick = function ()
+                        if(!node.innerHTML.includes("ytm-profile-icon"))
+                        {
+                            // make account button take you directly to google login
+                            accountButton.onclick = function ()
+                            {
+                                document.documentElement.innerHTML = "Please Wait..."
+
+                                window.location.href = 'https://accounts.google.com';
+                            };
+                        }
+                        else
+                        {
+                            // Need to set _currentScreen = "menu", then manually call the accountButton's onclick.
+                            // This is because the screen will appear before SetCurrentScreen can be called and the
+                            var accountButtonOnClick = accountButton.onclick;
+
+                            accountButton.onclick = function ()
+                            {
+                                _currentScreen = "menu";
+
+                                accountButtonOnClick.call();
+                            };
+                        }
+                    }
+
+                    if (node.classList != null && node.classList.contains("mobile-topbar-header-sign-in-button"))
+                    {
+                        // make signInButton take you directly to google login
+                        var signInButton = document.querySelector(".mobile-topbar-header-sign-in-button");
+
+                        signInButton.onclick = function ()
                         {
                             document.documentElement.innerHTML = "Please Wait..."
 
                             window.location.href = 'https://accounts.google.com';
                         };
                     }
-                }
-
-                if (node.classList != null && node.classList.contains("mobile-topbar-header-sign-in-button"))
-                {
-                    // add please wait to sign in button
-                    var signInButton = document.querySelector(".mobile-topbar-header-sign-in-button");
-
-                    signInButton.onclick = function ()
-                    {
-                        document.documentElement.innerHTML = "Please Wait..."
-
-                        window.location.href = 'https://accounts.google.com';
-                    };
                 }
             }
         }
@@ -150,7 +167,7 @@ function initSkipAccountScreenMutationObserver()
 {
     var skipAccountScreenMutationObserver = new MutationObserver(function(mutations)
     {
-        if (window.location.href.includes("menu"))
+        if (_currentScreen == "menu")
         {
             for (var mutation of mutations)
             {
@@ -172,7 +189,7 @@ function initSkipAccountScreenMutationObserver()
                     {
                         document.querySelector("#menu").style.display = "block";
 
-                        // add please wait to add account button
+                        // make add account button take you directly to google login. Added AddSession to the url intentionally
                         var addAccountButton = mutation.target.parentNode.parentNode.parentNode;
 
                         addAccountButton.onclick = function ()
@@ -206,7 +223,7 @@ function initUnwantedSignInElementsMutationObserver()
 {
     var unwantedSignInElementsMutationObserver = new MutationObserver(function(mutations)
     {
-        if (window.location.href.includes("accounts"))
+        if (_currentScreen == "accounts")
         {
             for (var mutation of mutations)
             {
@@ -244,31 +261,34 @@ function initFullScreenMutationObserver()
 {
     var fullScreenMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen == "watch")
         {
-            for (var node of mutation.addedNodes)
+            for (var mutation of mutations)
             {
-                if(node.nodeName == "BUTTON" && node.classList.contains("fullscreen-icon"))
+                for (var node of mutation.addedNodes)
                 {
-                    // need to null out youtubes onclick listener
-                    document.querySelector(".fullscreen-icon").onclick = null;
-
-                    document.querySelector(".fullscreen-icon").addEventListener("click", function(e)
+                    if(node.nodeName == "BUTTON" && node.classList.contains("fullscreen-icon"))
                     {
-                        // need to null out the onclick listener again because it will reattach
+                        // need to null out youtubes onclick listener
                         document.querySelector(".fullscreen-icon").onclick = null;
 
-                        var isFullscreen = document.body.getAttribute("faux-fullscreen");
+                        document.querySelector(".fullscreen-icon").addEventListener("click", function(e)
+                        {
+                            // need to null out the onclick listener again because it will reattach
+                            document.querySelector(".fullscreen-icon").onclick = null;
 
-                        if (isFullscreen != null)
-                        {
-                            ExitFullScreen(true);
-                        }
-                        else
-                        {
-                            EnterFullScreen(true);
-                        }
-                    });
+                            var isFullscreen = document.body.getAttribute("faux-fullscreen");
+
+                            if (isFullscreen != null)
+                            {
+                                ExitFullScreen(true);
+                            }
+                            else
+                            {
+                                EnterFullScreen(true);
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -287,33 +307,36 @@ function initShareButtonMutationObserver()
     // We need to use addEventListener to not override the other buttons onclick eventlisteners.
     var shareButtonMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen == "watch")
         {
-            for (var node of mutation.addedNodes)
+            for (var mutation of mutations)
             {
-                if(node.nodeName == "BUTTON" && node.classList.contains("c3-material-button-button"))
+                for (var node of mutation.addedNodes)
                 {
-                    if (node.innerText.includes("Share"))
+                    if(node.nodeName == "BUTTON" && node.classList.contains("c3-material-button-button"))
                     {
-                        // remove onclick event listener at the start
-                        document.querySelector('[aria-label="Share"]').onclick = null;
-
-                        node.addEventListener("click", function()
+                        if (node.innerText.includes("Share"))
                         {
-                            // remove onclick whenever the share button is clicked
-                            // can't use node because it will not persists
+                            // remove onclick event listener at the start
                             document.querySelector('[aria-label="Share"]').onclick = null;
 
-                            window.androidWebViewClient.shareClicked(window.location.href);
-                        });
-                    }
-                    else
-                    {
-                        node.addEventListener("click", function(e)
+                            node.addEventListener("click", function()
+                            {
+                                // remove onclick whenever the share button is clicked
+                                // can't use node because it will not persists
+                                document.querySelector('[aria-label="Share"]').onclick = null;
+
+                                window.androidWebViewClient.shareClicked(window.location.href);
+                            });
+                        }
+                        else
                         {
-                            // remove share onclick event any time a different c3-material-button-button is clicked
-                            document.querySelector('[aria-label="Share"]').onclick = null;
-                        });
+                            node.addEventListener("click", function(e)
+                            {
+                                // remove share onclick event any time a different c3-material-button-button is clicked
+                                document.querySelector('[aria-label="Share"]').onclick = null;
+                            });
+                        }
                     }
                 }
             }
@@ -331,56 +354,59 @@ function initVideoEndedMutationObserver()
 {
     var videoEndedMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen == "watch")
         {
-            if (mutation.target.classList.contains('html5-endscreen') && mutation.attributeName == "style")
+            for (var mutation of mutations)
             {
-                // need to determine if the end screen is showing
-                if(!mutation.target.style.display.includes('none'))
+                if (mutation.target.classList.contains('html5-endscreen') && mutation.attributeName == "style")
                 {
-                    // Need to do some quick visual adjustment that bugs me.  Endscreen buttons don't look vertically centered
-                    if (document.querySelector('[aria-label="Previous Video"]') != null)
+                    // need to determine if the end screen is showing
+                    if(!mutation.target.style.display.includes('none'))
                     {
-                        document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
-                    }
-
-                    if (document.querySelector('[aria-label="Replay Video"]') != null)
-                    {
-                        document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
-                    }
-
-                    if (document.querySelector('[aria-label="Next Video"]') != null)
-                    {
-                        document.querySelector('[aria-label="Next Video"]').style.top = "35%";
-                    }
-                    // end visual adjustment
-
-                    let isAutoPlayEnabled = document.querySelector('[aria-label="Autoplay"]').getAttribute("aria-pressed");
-
-                    if (isAutoPlayEnabled.includes("false"))
-                    {
-                        ExitFullScreen(true);
-
-                        // if the video is a replay, make sure the endscreen contents are shown
-                        document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
-                    }
-                    else
-                    {
-                        // Need to ensure endscreen contents are not shown. This covers for a youtube bug where if we replayed a video
-                        // and autoplay is on, when the video ends both autoplay and endscreen will be visible. Yikes
-                        if (document.querySelector('.ytp-mweb-endscreen-contents') != null)
+                        // Need to do some quick visual adjustment that bugs me.  Endscreen buttons don't look vertically centered
+                        if (document.querySelector('[aria-label="Previous Video"]') != null)
                         {
-                            document.querySelector('.ytp-mweb-endscreen-contents').style.display = "none";
+                            document.querySelector('[aria-label="Previous Video"]').style.top = "35%";
                         }
 
-                        // add event listener to "cancel autoplay" button to exit fullscreen and display endscreen
-                        // need null check so the event is only added once
-                        document.querySelector('[aria-label="Cancel autoplay"]').addEventListener("click", function(e)
+                        if (document.querySelector('[aria-label="Replay Video"]') != null)
+                        {
+                            document.querySelector('[aria-label="Replay Video"]').style.top = "35%";
+                        }
+
+                        if (document.querySelector('[aria-label="Next Video"]') != null)
+                        {
+                            document.querySelector('[aria-label="Next Video"]').style.top = "35%";
+                        }
+                        // end visual adjustment
+
+                        let isAutoPlayEnabled = document.querySelector('[aria-label="Autoplay"]').getAttribute("aria-pressed");
+
+                        if (isAutoPlayEnabled.includes("false"))
                         {
                             ExitFullScreen(true);
 
+                            // if the video is a replay, make sure the endscreen contents are shown
                             document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
-                        });
+                        }
+                        else
+                        {
+                            // Need to ensure endscreen contents are not shown. This covers for a youtube bug where if we replayed a video
+                            // and autoplay is on, when the video ends both autoplay and endscreen will be visible. Yikes
+                            if (document.querySelector('.ytp-mweb-endscreen-contents') != null)
+                            {
+                                document.querySelector('.ytp-mweb-endscreen-contents').style.display = "none";
+                            }
+
+                            // add event listener to "cancel autoplay" button to exit fullscreen and display endscreen
+                            // need null check so the event is only added once
+                            document.querySelector('[aria-label="Cancel autoplay"]').addEventListener("click", function(e)
+                            {
+                                ExitFullScreen(true);
+
+                                document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
+                            });
+                        }
                     }
                 }
             }
@@ -397,15 +423,18 @@ function initSettingsPopupMutationObserver()
 {
     var settingsPopupMutationObserver = new MutationObserver(function(mutations)
     {
-        for (var mutation of mutations)
+        if (_currentScreen == "watch")
         {
-            for (var node of mutation.addedNodes)
+            for (var mutation of mutations)
             {
-                if (node.nodeName == "YTM-MENU-ITEM")
+                for (var node of mutation.addedNodes)
                 {
-                    if (node.textContent.includes('Copy Debug Info') || node.textContent.includes('Stats For Nerds'))
+                    if (node.nodeName == "YTM-MENU-ITEM")
                     {
-                        node.style.display = "none";
+                        if (node.textContent.includes('Copy Debug Info') || node.textContent.includes('Stats For Nerds'))
+                        {
+                            node.style.display = "none";
+                        }
                     }
                 }
             }
@@ -427,6 +456,15 @@ function initTapHighlightColor()
 // public functions
 // must return 'success';
 //////////////////////////////////////////////////////////////////////////
+
+var _currentScreen = "";
+
+function SetCurrentScreen(currentScreen)
+{
+    _currentScreen = currentScreen;
+
+    return 'successfully called SetCurrentScreen()';
+}
 
 function EnterFullScreen(forceLandscape)
 {

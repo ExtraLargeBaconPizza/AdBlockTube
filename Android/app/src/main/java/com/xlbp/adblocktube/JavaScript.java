@@ -27,6 +27,28 @@ public class JavaScript
         });
     }
 
+    public void setCurrentScreen(String url)
+    {
+        String currentScreen = "";
+
+        if (url.contains("watch"))
+        {
+            currentScreen = "watch";
+        }
+
+        if (url.contains("menu"))
+        {
+            currentScreen = "menu";
+        }
+
+        if (url.contains("accounts"))
+        {
+            currentScreen = "accounts";
+        }
+
+        evaluate("SetCurrentScreen('" + currentScreen + "');");
+    }
+
     public void enterFullScreen(boolean forceLandscape)
     {
         evaluate("EnterFullScreen(" + forceLandscape + ");");

@@ -1,5 +1,6 @@
 package com.xlbp.adblocktube;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.webkit.WebResourceError;
@@ -34,6 +35,14 @@ public class ViewClient extends WebViewClient
         super.doUpdateVisitedHistory(webView, url, isReload);
 
         _mainActivity.doUpdateVisitedHistory(url);
+    }
+
+    @Override
+    public void onPageStarted(WebView webView, String url, Bitmap favicon)
+    {
+        super.onPageStarted(webView, url, favicon);
+
+        Log.e("ViewClient", "onPageStarted url " + url);
     }
 
 
