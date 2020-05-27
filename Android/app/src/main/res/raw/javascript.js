@@ -1,15 +1,25 @@
-// this is the sudo constructor
+
+// pseudo constructor
 (function ()
 {
+    init();
+
+    return 'successfully loaded javascript.js';
+})();
+
+function init()
+{
+    isJavaScriptInitialized = true;
+
     // The point of the app
     initAdsMutationObserver();
 
     // Menu/Account
-    initMenuButtonMutationObserver();
+    initHeaderMutationObserver();
 
-    initAccountMenuSkip();
+    initSkipAccountScreenMutationObserver();
 
-    initSignInMutationObserver();
+    initUnwantedSignInElementsMutationObserver();
 
     // Watch screen specific
     initFullScreenMutationObserver();
@@ -18,13 +28,14 @@
 
     initVideoEndedMutationObserver();
 
+    initSettingsPopupMutationObserver();
+
     // Hide blue click
     initTapHighlightColor();
+}
 
-    return 'successfully loaded javascript.js';
-})();
-
-// initAdsMutationObserver
+// detect video ad class then remove the vrc src
+// detect ad elements and remove them
 function initAdsMutationObserver()
 {
     var adsMutationObserver = new MutationObserver(function(mutations)
@@ -35,7 +46,7 @@ function initAdsMutationObserver()
             {
                 if (mutation.target.classList.contains('ad-showing'))
                 {
-                    skipVideoAd();
+                    removeVideoAdSrc();
                 }
             }
             else if (mutation.type  == "childList")
@@ -80,15 +91,17 @@ function initAdsMutationObserver()
     adsMutationObserver.observe(container, config);
 }
 
-function initMenuButtonMutationObserver()
+// remove the three dot settings button in the header
+// if the user is not logged in, change the profile icon onclick to navigate directly to accounts.google.com
+function initHeaderMutationObserver()
 {
-    var menuButtonMutationObserver = new MutationObserver(function(mutations)
+    var headerMutationObserver = new MutationObserver(function(mutations)
     {
         for (var mutation of mutations)
         {
             for (var node of mutation.addedNodes)
             {
-                if (node.nodeName == 'YTM-MENU')
+                if (node.nodeName == 'YTM-MENU' && node.parentNode.classList.contains("mobile-topbar-header-content"))
                 {
                     node.style.display = "none";
                 }
@@ -97,10 +110,29 @@ function initMenuButtonMutationObserver()
                 {
                     if(!node.innerHTML.includes("ytm-profile-icon"))
                     {
+                        // add please wait to profile icon button
                         var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
 
-                        accountButton.setAttribute("onclick", "window.location.href = 'https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Dm%26hl%3Den%26next%3Dhttps%253A%252F%252Fm.youtube.com%252F%253Fnoapp%253D1&hl=en'");
+                        accountButton.onclick = function ()
+                        {
+                            document.documentElement.innerHTML = "Please Wait..."
+
+                            window.location.href = 'https://accounts.google.com';
+                        };
                     }
+                }
+
+                if (node.classList != null && node.classList.contains("mobile-topbar-header-sign-in-button"))
+                {
+                    // add please wait to sign in button
+                    var signInButton = document.querySelector(".mobile-topbar-header-sign-in-button");
+
+                    signInButton.onclick = function ()
+                    {
+                        document.documentElement.innerHTML = "Please Wait..."
+
+                        window.location.href = 'https://accounts.google.com';
+                    };
                 }
             }
         }
@@ -110,53 +142,69 @@ function initMenuButtonMutationObserver()
     var container = document.documentElement;
     var config = { childList: true, subtree: true };
 
-    menuButtonMutationObserver.observe(container, config);
+    headerMutationObserver.observe(container, config);
 }
 
-// We cant use a mutation observer because we're skipping a screen
-function initAccountMenuSkip()
+// if the user is signed in, skip the Account screen and go directly to the Accounts screen. (difference is the 's')
+function initSkipAccountScreenMutationObserver()
 {
-    window.addEventListener('popstate', function (event)
+    var skipAccountScreenMutationObserver = new MutationObserver(function(mutations)
     {
         if (window.location.href.includes("menu"))
         {
-            document.querySelector("#menu").style.display = "none";
-
-            var isSignedIn = false;
-
-            var checkExist = setInterval(function()
+            for (var mutation of mutations)
             {
-                // already signed in
-                if (document.querySelector('.active-account-name') != null)
+                // detect when account screen is showing then hides and skips it
+                for (var node of mutation.addedNodes)
                 {
-                    isSignedIn = true;
-
-                    document.querySelector('.active-account-name').click();
-                }
-
-                if (document.querySelector('#simple-menu-header-title').innerText.includes("Accounts"))
-                {
-                    document.querySelector("#menu").style.display = "block";
-
-                    // This is needed to fix a m.youtube bug. User could not scroll after pressing the 'x' button
-                    // in the accounts screen. This was caused because the 'modal-open-body' attribute is not being removed
-                    // from the body element. So we need to do it manually
-                    document.querySelector("#simple-menu-header-close-button").addEventListener("click", function(e)
+                    if (node.id == 'simple-menu-header-title')
                     {
-                        document.body.removeAttribute("modal-open-body");
-                    });
+                        document.querySelector('.active-account-name').click();
 
-                    clearInterval(checkExist);
+                        document.querySelector("#menu").style.display = "none";
+                    }
                 }
-            }, 10);
+
+                // detect when accounts screen is showing then shows it
+                if (mutation.type === 'characterData')
+                {
+                    if (mutation.target.textContent.includes("Add account"))
+                    {
+                        document.querySelector("#menu").style.display = "block";
+
+                        // add please wait to add account button
+                        var addAccountButton = mutation.target.parentNode.parentNode.parentNode;
+
+                        addAccountButton.onclick = function ()
+                        {
+                            document.documentElement.innerHTML = "Please Wait..."
+
+                            window.location.href = 'https://accounts.google.com/AddSession';
+                        };
+
+                        // This is needed to fix a m.youtube bug. User could not scroll after pressing the 'x' button
+                        // in the accounts screen. This was caused because the 'modal-open-body' attribute is not being removed
+                        // from the body element. So we need to do it manually
+                        document.querySelector("#simple-menu-header-close-button").addEventListener("click", function(e)
+                        {
+                            document.body.removeAttribute("modal-open-body");
+                        });
+                    }
+                }
+            }
         }
     });
+
+    var container = document.documentElement;
+    var config = { characterData: true, childList: true, subtree: true };
+
+    skipAccountScreenMutationObserver.observe(container, config);
 }
 
-// initSignInMutationObserver
-function initSignInMutationObserver()
+// removes all unwanted sign in elements
+function initUnwantedSignInElementsMutationObserver()
 {
-    var signInMutationObserver = new MutationObserver(function(mutations)
+    var unwantedSignInElementsMutationObserver = new MutationObserver(function(mutations)
     {
         if (window.location.href.includes("accounts"))
         {
@@ -164,26 +212,20 @@ function initSignInMutationObserver()
             {
                 for (var node of mutation.addedNodes)
                 {
-                    if (node.nodeName == 'FOOTER')
-                    {
-                        node.style.display = "none";
-                    }
-
-                    if (node.textContent.includes('Forgot') || node.textContent.includes('Learn')  || node.textContent.includes('Create'))
+                    // V2 login flow
+                    if (node.textContent.includes('Forgot') ||
+                        node.textContent.includes('Learn')  ||
+                        node.textContent.includes('Create') ||
+                        node.textContent.includes('Remove an account'))
                     {
                         removeUnwantedSignInElements();
                     }
 
-                    // this is a different login flow for some reason
-                    if (node.nodeName == 'UL' && node.id == "footer-list")
+                    // Old Login flow
+                    if (node.textContent.includes("One Google Account") ||
+                        node.textContent.includes("Add account"))
                     {
-                        node.parentNode.parentNode.style.display = "none";
-                    }
-
-                    // TODO - handle alternate sign in route
-                    if (node.textContent.includes("Find my account") || node.textContent.includes("Create account") )
-                    {
-//                        node.style.display = "none";
+                        removeOldUnwantedSignInElements();
                     }
                 }
             }
@@ -193,10 +235,9 @@ function initSignInMutationObserver()
     var container = document.documentElement;
     var config = { childList: true, subtree: true };
 
-    signInMutationObserver.observe(container, config);
+    unwantedSignInElementsMutationObserver.observe(container, config);
 }
 
-// initFullScreenMutationObserver
 // I need to have all this nonsense so that entering/exiting fullscreen is consistent.
 // This is done by removing all of youtube fullscreen click event listeners and manually doing everything
 function initFullScreenMutationObserver()
@@ -221,11 +262,11 @@ function initFullScreenMutationObserver()
 
                         if (isFullscreen != null)
                         {
-                            exitFullScreen(true);
+                            ExitFullScreen(true);
                         }
                         else
                         {
-                            enterFullScreen(true);
+                            EnterFullScreen(true);
                         }
                     });
                 }
@@ -239,6 +280,7 @@ function initFullScreenMutationObserver()
     fullScreenMutationObserver.observe(container, config);
 }
 
+// override youtube's share button functionality with Android style sharing
 function initShareButtonMutationObserver()
 {
     // The Share buttons onclick event listener gets re-initialized any time a c3-material-button-button is clicked.
@@ -284,7 +326,7 @@ function initShareButtonMutationObserver()
     shareButtonMutationObserver.observe(container, config);
 }
 
-// initVideoEndedMutationObserver
+// handle when an video ends
 function initVideoEndedMutationObserver()
 {
     var videoEndedMutationObserver = new MutationObserver(function(mutations)
@@ -317,7 +359,7 @@ function initVideoEndedMutationObserver()
 
                     if (isAutoPlayEnabled.includes("false"))
                     {
-                        exitFullScreen(true);
+                        ExitFullScreen(true);
 
                         // if the video is a replay, make sure the endscreen contents are shown
                         document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
@@ -335,7 +377,7 @@ function initVideoEndedMutationObserver()
                         // need null check so the event is only added once
                         document.querySelector('[aria-label="Cancel autoplay"]').addEventListener("click", function(e)
                         {
-                            exitFullScreen(true);
+                            ExitFullScreen(true);
 
                             document.querySelector('.ytp-mweb-endscreen-contents').style.display = "block";
                         });
@@ -351,6 +393,31 @@ function initVideoEndedMutationObserver()
     videoEndedMutationObserver.observe(container, config);
 }
 
+function initSettingsPopupMutationObserver()
+{
+    var settingsPopupMutationObserver = new MutationObserver(function(mutations)
+    {
+        for (var mutation of mutations)
+        {
+            for (var node of mutation.addedNodes)
+            {
+                if (node.nodeName == "YTM-MENU-ITEM")
+                {
+                    if (node.textContent.includes('Copy Debug Info') || node.textContent.includes('Stats For Nerds'))
+                    {
+                        node.style.display = "none";
+                    }
+                }
+            }
+        }
+    });
+
+    var container = document.documentElement;
+    var config = { childList: true, subtree: true };
+
+    settingsPopupMutationObserver.observe(container, config);
+}
+
 function initTapHighlightColor()
 {
     document.documentElement.style.webkitTapHighlightColor = "#00000000";
@@ -361,30 +428,31 @@ function initTapHighlightColor()
 // must return 'success';
 //////////////////////////////////////////////////////////////////////////
 
-function enterFullScreen(forceLandscape)
+function EnterFullScreen(forceLandscape)
 {
     document.body.setAttribute("faux-fullscreen", true);
 
     window.androidWebViewClient.onEnterFullScreen(forceLandscape);
 
-    return 'successfully called enterFullScreen()';
+    return 'successfully called EnterFullScreen()';
 }
 
-function exitFullScreen(forcePortrait)
+function ExitFullScreen(forcePortrait)
 {
     document.body.removeAttribute("faux-fullscreen");
 
     window.androidWebViewClient.onExitFullScreen(forcePortrait);
 
-    return 'successfully called exitFullScreen()';
+    return 'successfully called ExitFullScreen()';
 }
 
 //////////////////////////////////////////////////////////////////////////
 // private functions
 //////////////////////////////////////////////////////////////////////////
 
-function skipVideoAd()
+function removeVideoAdSrc()
 {
+    // this is probably not needed
     var videoAdsElement = document.querySelector('.video-ads');
 
     if (videoAdsElement != null && videoAdsElement.parentNode != null)
@@ -443,5 +511,68 @@ function removeUnwantedSignInElements()
         {
             span.style.display = "none";
         }
+    }
+
+    var footer = document.querySelector("footer");
+
+    if (footer != null)
+    {
+        footer.style.display = "none";
+    }
+}
+
+function removeOldUnwantedSignInElements()
+{
+    var links = document.querySelectorAll('a');
+
+    for (var link of links)
+    {
+        if (link.innerText.includes("Sign in with different account"))
+        {
+            link.parentNode.parentNode.style.display = "none";
+        }
+
+        if (link.innerText.includes("Find my account"))
+        {
+            link.style.display = "none";
+        }
+    }
+
+    var inputs = document.querySelectorAll('input');
+
+    for (var input of inputs)
+    {
+        if (input.value.includes("Forgot password?"))
+        {
+            input.style.display = "none";
+        }
+    }
+
+    var oneGoogle = document.querySelector(".one-google");
+
+    if (oneGoogle != null)
+    {
+        oneGoogle.parentNode.style.display = "none";
+    }
+
+    var signInWithDifferentAccount = document.querySelector("#account-chooser-link");
+
+    if (signInWithDifferentAccount != null)
+    {
+        signInWithDifferentAccount.parentNode.parentNode.style.display = "none";
+    }
+
+    var footer = document.querySelector(".google-footer-bar");
+
+    if (footer != null)
+    {
+        footer.style.display = "none";
+    }
+
+    var footerList = document.querySelector("#footer-list");
+
+    if (footerList != null)
+    {
+        footerList.parentNode.parentNode.style.display = "none";
     }
 }

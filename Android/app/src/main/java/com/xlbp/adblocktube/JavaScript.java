@@ -17,20 +17,27 @@ public class JavaScript
 
     public void init()
     {
-        initJavaScript();
+        // check to see if custom JavaScript code has already been loaded
+        _webView.evaluateJavascript("(function(){ return typeof init === 'function'; })();", (customJavaScriptLoaded) ->
+        {
+            if (!customJavaScriptLoaded.contains("true"))
+            {
+                loadCustomJavaScript();
+            }
+        });
     }
 
     public void enterFullScreen(boolean forceLandscape)
     {
-        evaluate("enterFullScreen(" + forceLandscape + ");");
+        evaluate("EnterFullScreen(" + forceLandscape + ");");
     }
 
     public void exitFullScreen(boolean forcePortrait)
     {
-        evaluate("exitFullScreen(" + forcePortrait + ");");
+        evaluate("ExitFullScreen(" + forcePortrait + ");");
     }
 
-    private void initJavaScript()
+    private void loadCustomJavaScript()
     {
         String javaScript = Helpers.readTextFromResource(_mainActivity, R.raw.javascript);
 
@@ -47,11 +54,7 @@ public class JavaScript
 
     private void evalResult(String code, String evalResult)
     {
-        if (evalResult.contains("success"))
-        {
-            Log.e("JavaScript", evalResult);
-        }
-        else
+        if (!evalResult.contains("success"))
         {
             Log.e("JavaScript", "Code eval failed. Calling again");
 
