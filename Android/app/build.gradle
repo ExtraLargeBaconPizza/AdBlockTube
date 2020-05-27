@@ -5,7 +5,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.xlbp.noadstube"
+        applicationId "com.xlbp.adfreetube"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1

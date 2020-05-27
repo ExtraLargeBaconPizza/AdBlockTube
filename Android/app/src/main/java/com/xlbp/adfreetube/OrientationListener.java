@@ -24,7 +24,7 @@ public class OrientationListener extends OrientationEventListener
     @Override
     public void onOrientationChanged(int orientation)
     {
-        if (_isWatchingVideo)
+        if (_isWatchingVideo && MainActivity.IsPremium)
         {
             if (!_isLandScape && _mainActivity.getIsFullScreen())
             {

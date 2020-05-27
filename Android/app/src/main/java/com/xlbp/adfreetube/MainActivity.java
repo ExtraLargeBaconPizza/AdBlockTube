@@ -17,13 +17,16 @@ import android.webkit.WebView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-// TODO Pro aka v2 not gunna charge
+// TODO Pro aka v2
 // casting
+// auto rotate fullscreen
 // mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
 // full zoom for two finger zoom gesture
 
 public class MainActivity extends AppCompatActivity
 {
+    public static final boolean IsPremium = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     {
         super.onConfigurationChanged(newConfig);
 
-        if (_isWatchingVideo)
+        if (_isWatchingVideo && IsPremium)
         {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
             {

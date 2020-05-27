@@ -24,6 +24,6 @@ public class ExampleInstrumentedTest
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.xlbp.noadstube", appContext.getPackageName());
+        assertEquals("com.xlbp.adfreetube", appContext.getPackageName());
     }
 }
