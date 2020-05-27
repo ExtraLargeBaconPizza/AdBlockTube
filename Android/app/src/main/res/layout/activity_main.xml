@@ -13,6 +13,17 @@
         android:layout_height="match_parent"
         android:background="#000000" />
 
+    <ImageView
+        android:id="@+id/noInternetImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/noInternetTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@mipmap/ic_launcher"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/noInternetTextView"
         android:layout_width="wrap_content"

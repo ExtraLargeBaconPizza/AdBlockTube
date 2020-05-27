@@ -3,9 +3,11 @@ package com.xlbp.adfreetube;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,18 +17,6 @@ import android.webkit.WebView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-// TODO FREE
-// logo and design bullshit
-// set my app as default? deep linking
-// handle not connected to internet
-// check how often epsilonCheck is called
-// onresume after video ends, but autoplay isnt on
-//
-// TODO Testing
-// if video fails (listen for playback unplayable event from youtube?) or just search inner text (only seems to happen on chrome)
-// onPause  / onResume / re-hydration testing
-// test on tablets to make sure it goes to the mobile site
-//
 // TODO Pro aka v2 not gunna charge
 // casting
 // mini video (swipe to lower etc) document.querySelector('video').requestPictureInPicture();
@@ -39,7 +29,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         init();
     }
@@ -64,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         {
             _javaScript.exitFullScreen(true);
         }
-        else if (_webView.canGoBack())
+        else if (_webView != null && _webView.canGoBack())
         {
             _webView.goBack();
         }
@@ -78,8 +67,6 @@ public class MainActivity extends AppCompatActivity
     public void onConfigurationChanged(Configuration newConfig)
     {
         super.onConfigurationChanged(newConfig);
-
-        Log.e("MainActivity", "onConfigChange Landscape " + (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE));
 
         if (_isWatchingVideo)
         {
@@ -100,7 +87,10 @@ public class MainActivity extends AppCompatActivity
     {
         super.onSaveInstanceState(outState);
 
-        _webView.saveState(outState);
+        if (_webView != null)
+        {
+            _webView.saveState(outState);
+        }
     }
 
     @Override
@@ -108,7 +98,10 @@ public class MainActivity extends AppCompatActivity
     {
         super.onRestoreInstanceState(savedInstanceState);
 
-        _webView.restoreState(savedInstanceState);
+        if (_webView != null)
+        {
+            _webView.restoreState(savedInstanceState);
+        }
     }
 
     @Override
@@ -143,6 +136,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (checkIfInternetAvailable())
         {
+            initDeepLink();
+
             initWebView();
 
             initJavascript();
@@ -171,6 +166,18 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    private void initDeepLink()
+    {
+        Uri deepLinkData = getIntent().getData();
+
+        _deepLink = deepLinkData != null ? deepLinkData.toString() : "";
+
+        if (_deepLink.contains("http://"))
+        {
+            _deepLink.replace("http://", "https://");
+        }
+    }
+
     private void initWebView()
     {
         _webView = findViewById(R.id.webView);
@@ -186,7 +193,9 @@ public class MainActivity extends AppCompatActivity
             _webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
 
-        _webView.loadUrl("https://m.youtube.com/");
+        String urlToLoad = _deepLink != "" ? _deepLink : "https://m.youtube.com/";
+
+        _webView.loadUrl(urlToLoad);
     }
 
     private void initJavascript()
@@ -237,8 +246,12 @@ public class MainActivity extends AppCompatActivity
 
     private void showNoInternet()
     {
+        findViewById(R.id.noInternetImageView).setVisibility(View.VISIBLE);
         findViewById(R.id.noInternetTextView).setVisibility(View.VISIBLE);
     }
+
+
+    private String _deepLink;
 
     private WebView _webView;
     private JavaScript _javaScript;
