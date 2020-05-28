@@ -17,9 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 // TODO Free
-// make a nicer loading than "please wait"
-// remove copy debug info
-// stats for nerds
+// reattach on click to account icon
 
 // TODO Pro aka v2
 // casting
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity
         {
             Helpers.hideNavigationAndStatusBars(this);
 
-            Helpers.setOrientationToSensor(this);
+            Helpers.setOrientationToLandScape(this);
         }
     }
 
@@ -152,10 +150,6 @@ public class MainActivity extends AppCompatActivity
 
             initOrientationEventListener();
         }
-        else
-        {
-            showNoInternet();
-        }
     }
 
     private boolean checkIfInternetAvailable()
@@ -170,6 +164,8 @@ public class MainActivity extends AppCompatActivity
         {
             return true;
         }
+
+        showNoInternet();
 
         return false;
     }

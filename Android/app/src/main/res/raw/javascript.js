@@ -102,53 +102,41 @@ function initHeaderMutationObserver()
         {
             for (var mutation of mutations)
             {
-                for (var node of mutation.addedNodes)
+                if (mutation.type  == "childList")
                 {
-                    if (node.nodeName == 'YTM-MENU' && node.parentNode.classList.contains("mobile-topbar-header-content"))
+                    for (var node of mutation.addedNodes)
                     {
-                        node.style.display = "none";
-                    }
-
-                    if (node.nodeName == "YTM-TOPBAR-MENU-BUTTON-RENDERER")
-                    {
-                        var accountButton = document.querySelectorAll(".topbar-menu-button-avatar-button")[1];
-
-                        if(!node.innerHTML.includes("ytm-profile-icon"))
+                        if (node.nodeName == 'YTM-MENU' && node.parentNode.classList.contains("mobile-topbar-header-content"))
                         {
-                            // make account button take you directly to google login
-                            accountButton.onclick = function ()
+                            node.style.display = "none";
+                        }
+
+                        if (node.nodeName == "YTM-TOPBAR-MENU-BUTTON-RENDERER")
+                        {
+                            attachAccountButtonOnClickEvent();
+                        }
+
+                        // this is for the big blue sign in button when watching a video
+                        if (node.classList != null && node.classList.contains("mobile-topbar-header-sign-in-button"))
+                        {
+                            // make signInButton take you directly to google login
+                            var signInButton = document.querySelector(".mobile-topbar-header-sign-in-button");
+
+                            signInButton.onclick = function ()
                             {
                                 document.documentElement.innerHTML = "Please Wait..."
 
                                 window.location.href = 'https://accounts.google.com';
                             };
                         }
-                        else
-                        {
-                            // Need to set _currentScreen = "menu", then manually call the accountButton's onclick.
-                            // This is because the screen will appear before SetCurrentScreen can be called and the
-                            var accountButtonOnClick = accountButton.onclick;
-
-                            accountButton.onclick = function ()
-                            {
-                                _currentScreen = "menu";
-
-                                accountButtonOnClick.call();
-                            };
-                        }
                     }
-
-                    if (node.classList != null && node.classList.contains("mobile-topbar-header-sign-in-button"))
+                }
+                else if (mutation.attributeName == "class")
+                {
+                    // when the sticky header hides/shows, it re-attaches its old onclick. So, we need to re-attach ours
+                    if (mutation.target.classList.contains('sticky-player') && mutation.target.classList.contains('in'))
                     {
-                        // make signInButton take you directly to google login
-                        var signInButton = document.querySelector(".mobile-topbar-header-sign-in-button");
-
-                        signInButton.onclick = function ()
-                        {
-                            document.documentElement.innerHTML = "Please Wait..."
-
-                            window.location.href = 'https://accounts.google.com';
-                        };
+                        attachAccountButtonOnClickEvent();
                     }
                 }
             }
@@ -157,7 +145,7 @@ function initHeaderMutationObserver()
 
     // container always needs to be document.documentElement because it will never be null
     var container = document.documentElement;
-    var config = { childList: true, subtree: true };
+    var config = { attributes: true, attributeFilter: ['class'], childList: true, subtree: true };
 
     headerMutationObserver.observe(container, config);
 }
@@ -511,6 +499,39 @@ function removeVideoAdSrc()
         {
             video.src = "";
         }
+    }
+}
+
+function attachAccountButtonOnClickEvent()
+{
+    let accountButton = document.querySelector("[aria-label='Account']");
+
+    let isLoggedIn = document.querySelector("ytm-topbar-menu-button-renderer").querySelector("ytm-profile-icon") != null;
+
+    console.log("isLoggedIn " + isLoggedIn);
+
+    if(isLoggedIn)
+    {
+        // Need to set _currentScreen = "menu", then manually call the accountButton's onclick.
+        // This is because the screen will appear before SetCurrentScreen can be called and the
+        let accountButtonOnClick = accountButton.onclick;
+
+        accountButton.onclick = function ()
+        {
+            _currentScreen = "menu";
+
+            accountButtonOnClick.call();
+        };
+    }
+    else
+    {
+        // make account button take you directly to google login
+        accountButton.onclick = function ()
+        {
+            document.documentElement.innerHTML = "Please Wait..."
+
+            window.location.href = 'https://accounts.google.com';
+        };
     }
 }
 
