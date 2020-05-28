@@ -98,7 +98,7 @@ function initHeaderMutationObserver()
 {
     var headerMutationObserver = new MutationObserver(function(mutations)
     {
-        if (_currentScreen == "")
+        if (_currentScreen != "accounts")
         {
             for (var mutation of mutations)
             {

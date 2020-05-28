@@ -17,7 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 // TODO Free
-// reattach on click to account icon
 
 // TODO Pro aka v2
 // casting
