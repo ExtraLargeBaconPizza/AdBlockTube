@@ -98,7 +98,7 @@ function initHeaderMutationObserver()
 {
     var headerMutationObserver = new MutationObserver(function(mutations)
     {
-        if (_currentScreen != "accounts")
+        if (_currentScreen == "")
         {
             for (var mutation of mutations)
             {
@@ -506,32 +506,35 @@ function attachAccountButtonOnClickEvent()
 {
     let accountButton = document.querySelector("[aria-label='Account']");
 
-    let isLoggedIn = document.querySelector("ytm-topbar-menu-button-renderer").querySelector("ytm-profile-icon") != null;
+    let topBar = document.querySelector("ytm-topbar-menu-button-renderer");
 
-    console.log("isLoggedIn " + isLoggedIn);
-
-    if(isLoggedIn)
+    if (topBar != null)
     {
-        // Need to set _currentScreen = "menu", then manually call the accountButton's onclick.
-        // This is because the screen will appear before SetCurrentScreen can be called and the
-        let accountButtonOnClick = accountButton.onclick;
+         let isLoggedIn = topBar.querySelector("ytm-profile-icon") != null;
 
-        accountButton.onclick = function ()
-        {
-            _currentScreen = "menu";
+         if(isLoggedIn)
+         {
+             // Need to set _currentScreen = "menu", then manually call the accountButton's onclick.
+             // This is because the screen will appear before SetCurrentScreen can be called and the
+             let accountButtonOnClick = accountButton.onclick;
 
-            accountButtonOnClick.call();
-        };
-    }
-    else
-    {
-        // make account button take you directly to google login
-        accountButton.onclick = function ()
-        {
-            document.documentElement.innerHTML = "Please Wait..."
+             accountButton.onclick = function ()
+             {
+                 _currentScreen = "menu";
 
-            window.location.href = 'https://accounts.google.com';
-        };
+                 accountButtonOnClick.call();
+             };
+         }
+         else
+         {
+             // make account button take you directly to google login
+             accountButton.onclick = function ()
+             {
+                 document.documentElement.innerHTML = "Please Wait..."
+
+                 window.location.href = 'https://accounts.google.com';
+             };
+         }
     }
 }
 

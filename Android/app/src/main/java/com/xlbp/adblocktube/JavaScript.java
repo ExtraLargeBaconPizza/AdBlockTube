@@ -29,6 +29,8 @@ public class JavaScript
 
     public void setCurrentScreen(String url)
     {
+        // JavaScript doesn't have a great way to detect when the url changes, so we're using the url changes from
+        // doUpdateVisitedHistory instead
         String currentScreen = "";
 
         if (url.contains("watch"))
@@ -46,6 +48,8 @@ public class JavaScript
             currentScreen = "accounts";
         }
 
+        // This will probably get called twice when first called because the function will not have been loaded yet.
+        // This variable must be set, so I'm fine with it getting called twice for now
         evaluate("SetCurrentScreen('" + currentScreen + "');");
     }
 

@@ -19,6 +19,6 @@ public class ChromeClient extends WebChromeClient
 
     public void onConsoleMessage(String message, int lineNumber, String sourceID)
     {
-        Log.e("console.log", message);
+        Log.e("console.log", message + " line: " + lineNumber);
     }
 }

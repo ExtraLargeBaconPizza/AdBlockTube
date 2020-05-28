@@ -37,14 +37,6 @@ public class ViewClient extends WebViewClient
         _mainActivity.doUpdateVisitedHistory(url);
     }
 
-    @Override
-    public void onPageStarted(WebView webView, String url, Bitmap favicon)
-    {
-        super.onPageStarted(webView, url, favicon);
-
-        Log.e("ViewClient", "onPageStarted url " + url);
-    }
-
 
     MainActivity _mainActivity;
 }
