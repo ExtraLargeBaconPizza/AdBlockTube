@@ -1,0 +1,5 @@
+/Users/Home/Desktop/Extra Large Bacon Pizza/AdBlockTube/Xamarin/AdBlockTube/bin/Debug/AdBlockTube.dll
+/Users/Home/Desktop/Extra Large Bacon Pizza/AdBlockTube/Xamarin/AdBlockTube/bin/Debug/AdBlockTube.pdb
+/Users/Home/Desktop/Extra Large Bacon Pizza/AdBlockTube/Xamarin/AdBlockTube/obj/Debug/AdBlockTube.csprojAssemblyReference.cache
+/Users/Home/Desktop/Extra Large Bacon Pizza/AdBlockTube/Xamarin/AdBlockTube/obj/Debug/AdBlockTube.dll
+/Users/Home/Desktop/Extra Large Bacon Pizza/AdBlockTube/Xamarin/AdBlockTube/obj/Debug/AdBlockTube.pdb

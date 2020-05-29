@@ -1,0 +1,36 @@
+﻿<Properties StartupConfiguration="{B18AF374-3F55-489E-94E3-E16FAE63305D}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="iOS/Main.cs">
+    <Files>
+      <File FileName="Droid/Activities/MainActivity.cs" Line="23" Column="1" />
+      <File FileName="Droid/Assets/AboutAssets.txt" Line="1" Column="1" />
+      <File FileName="Helpers/Command.cs" Line="1" Column="1" />
+      <File FileName="iOS/AppDelegate.cs" Line="1" Column="1" />
+      <File FileName="iOS/Main.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="XamarinNotBlank" expanded="True">
+            <Node name="XamarinNotBlank" expanded="True">
+              <Node name="Helpers" expanded="True" />
+            </Node>
+            <Node name="XamarinNotBlank.iOS" expanded="True">
+              <Node name="Main.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.XamarinNotBlank.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.96F59C12-C5B4-4A6A-B980-BED944015DCD">
+    <MonoDevelop.MacDev.AppleDevelopmentTeam />
+  </MonoDevelop.Ide.ItemProperties.XamarinNotBlank.iOS>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.XamarinNotBlank.Droid PreferredExecutionTarget="Android.notchy_boi" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.ItemProperties.XamarinNotBlank FirstBuild="True" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

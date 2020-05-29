@@ -1,0 +1,3 @@
+AdBlockTube.Droid.MainActivity, AdBlockTube.Droid;crc64eace2a993cd42044.MainActivity
+AdBlockTube.Droid.MainActivity;crc64eace2a993cd42044.MainActivity
+adblocktube.droid.MainActivity;crc64eace2a993cd42044.MainActivity
